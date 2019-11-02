@@ -20,8 +20,8 @@ static SCENE g_Scene = SCENE_NONE;
 static bool g_TexLoad = true;
 static HWND g_hwnd = NULL;
 //カメラ行列設定
-static D3DXVECTOR3 g_CameraRotate = D3DXVECTOR3(-45.0f, 0.0f, 0.0f);		//45, 0, 0
-static D3DXVECTOR3 g_CameraPosition = D3DXVECTOR3(0.0f, 0.0f, -12.0f);
+static D3DXVECTOR3 g_CameraRotate = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		//45, 0, 0
+static D3DXVECTOR3 g_CameraPosition = D3DXVECTOR3(0.0f, 10.0f, -10.0f);
 static D3DXVECTOR3 g_CameraAt = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 //=====================================================
@@ -73,15 +73,18 @@ void Game_Update(void)
 	switch (g_Scene)
 	{
 	case SCENE_3D:
+		Mouse_Update();
+		Stone_Update();
 		//カメラ設定
 		Camera_Set(g_CameraRotate, g_CameraPosition, g_CameraAt);
 		//カメラ入力操作
 		g_CameraRotate = Camera_Input_Rot(g_CameraRotate);
-		g_CameraPosition = Camera_Input_Pos(g_CameraPosition);
+		//g_CameraPosition = Camera_Input_Pos(g_CameraPosition);
 		//g_CameraAt = Camera_Input_At(g_CameraAt);
 		g_CameraAt = Stone_GetPos();
-		Mouse_Update();
-		Stone_Update();
+		g_CameraPosition = g_CameraAt;
+		g_CameraPosition.z -= 10.0f;
+		g_CameraPosition.y += 10.0f;
 		break;
 	default:
 		break;

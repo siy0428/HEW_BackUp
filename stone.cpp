@@ -3,8 +3,8 @@
 #include "common.h"
 #include "debug_font.h"
 #include "input.h"
-#include <stdio.h>
 #include "joycon.h"
+#include "mouse.h"
 
 //====================================================
 //構造体宣言
@@ -64,13 +64,15 @@ static const StoneVertex g_stone_vertex[] = {						//頂点構造体
 	{D3DXVECTOR3(0.5f, 0.5f, -0.5f), D3DCOLOR_RGBA(255, 255, 0, 255)},
 };
 static D3DXVECTOR3 g_pos = { 0.0f, 0.5f, 0.0f };
+static 	float g_move = 0;
 
 //=====================================================
 //初期化
 //=====================================================
 void Stone_Init(void)
 {
-
+	g_pos = D3DXVECTOR3(0.0f, 0.5f, 0.0f);
+	g_move = 0;
 }
 
 //=====================================================
@@ -86,7 +88,15 @@ void Stone_Uninit(void)
 //=====================================================
 void Stone_Update(void)
 {
-
+	if (GetAsyncKeyState(VK_LBUTTON))
+	{
+		g_move = 0.25f * (Mouse_GetForce());
+	}
+	else
+	{
+		g_move *= 0.95f;
+		g_pos.z += g_move;
+	}
 }
 
 //=====================================================
@@ -94,6 +104,8 @@ void Stone_Update(void)
 //=====================================================
 void Stone_Draw(void)
 {
+	DebugFont_Draw(0, 32 * 3, "移動量 = %.02lf", g_move);
+	DebugFont_Draw(0, 32 * 4, "z座標 = %.02lf", g_pos.z);
 	//デバイスのポインタ取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 

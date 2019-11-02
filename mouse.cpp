@@ -111,11 +111,11 @@ void Mouse_Draw(void)
 	DebugFont_Draw(0, 32 * 0, "Rキー:Y軸パラメータリセット");
 	DebugFont_Draw(0, 32 * 1, "x:%d", g_Mouse.pos_x);
 	DebugFont_Draw(0, 32 * 2, "y:%d(反転)", g_Mouse.pos_y);
-	for (int i = 0; i < MOUSE_SAVE_FRAME; i++)
-	{
-		DebugFont_Draw(0, 32 * (i + 3), "[%d] = %d", i, g_Mouse_Save[i]);
-	}
-	DebugFont_Draw(0, 32 * 13, "力 = %d", Mouse_GetForce());
+	//for (int i = 0; i < MOUSE_SAVE_FRAME; i++)
+	//{
+	//	DebugFont_Draw(0, 32 * (i + 3), "[%d] = %d", i, g_Mouse_Save[i]);
+	//}
+	//DebugFont_Draw(0, 32 * 13, "力 = %d", Mouse_GetForce());
 }
 
 //=====================================================
