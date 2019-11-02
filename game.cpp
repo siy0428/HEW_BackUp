@@ -11,6 +11,7 @@
 #include "grid.h"
 #include "camera.h"
 #include "mouse.h"
+#include "stone.h"
 
 //=====================================================
 //グローバル変数
@@ -39,6 +40,7 @@ void Game_Init(HWND hwnd)
 	Grid_Init();
 	Mouse_Init();
 	Camera_Init();
+	Stone_Init();
 	if (g_TexLoad)
 	{
 		if (Texture_Load() > 0)
@@ -60,6 +62,7 @@ void Game_Uninit(void)
 	EfectUninit();
 	Grid_Uninit();
 	Mouse_Uninit();
+	Stone_Uninit();
 }
 
 //=====================================================
@@ -75,8 +78,10 @@ void Game_Update(void)
 		//カメラ入力操作
 		g_CameraRotate = Camera_Input_Rot(g_CameraRotate);
 		g_CameraPosition = Camera_Input_Pos(g_CameraPosition);
-		g_CameraAt = Camera_Input_At(g_CameraAt);
+		//g_CameraAt = Camera_Input_At(g_CameraAt);
+		g_CameraAt = Stone_GetPos();
 		Mouse_Update();
+		Stone_Update();
 		break;
 	default:
 		break;
@@ -97,6 +102,7 @@ void Game_Draw(void)
 		//Cube_jyugyou();
 		Grid_Draw();
 		Mouse_Draw();
+		Stone_Draw();
 		break;
 	}
 }

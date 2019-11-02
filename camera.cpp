@@ -73,7 +73,6 @@ D3DXVECTOR3 Camera_Input_Pos(D3DXVECTOR3 pos)
 {
 	//右移動(中心移動)
 	if (Keyboard_IsPress(DIK_D))
-		//if(GetAsyncKeyState(VK_RBUTTON))
 	{
 		pos.x += 0.25f;
 	}
@@ -129,10 +128,10 @@ D3DXVECTOR3 Camera_Input_At(D3DXVECTOR3 at)
 //=====================================================
 void Camera_Debug_Info(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 at)
 {
-	//座標
-	DebugFont_Draw(0, 32 * 3, "eye = %.02lf  %.02lf  %.02lf", pos.x, pos.y, pos.z);
-	//注視点
-	DebugFont_Draw(0, 32 * 4, "at = %.02lf  %.02lf  %.02lf", at.x, at.y, at.z);
-	//回転
-	DebugFont_Draw(0, 32 * 5, "rot = %.02lf  %.02lf  %.02lf", rot.x, rot.y, rot.z);
+	////座標
+	//DebugFont_Draw(0, 32 * 3, "eye = %.02lf  %.02lf  %.02lf", pos.x, pos.y, pos.z);
+	////注視点
+	//DebugFont_Draw(0, 32 * 4, "at = %.02lf  %.02lf  %.02lf", at.x, at.y, at.z);
+	////回転
+	//DebugFont_Draw(0, 32 * 5, "rot = %.02lf  %.02lf  %.02lf", rot.x, rot.y, rot.z);
 }
