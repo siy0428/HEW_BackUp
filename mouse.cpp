@@ -63,7 +63,6 @@ void Mouse_Update(void)
 	//ゲーム内マウスパラメータ
 	g_Mouse.pos_x = pt.x;
 	g_Mouse.pos_y = MOUSE_MAX_HEIGHT + pt.y * -1 + (MOUSE_MAX_HEIGHT * g_LoopCount);	//上下反転
-	//Sleep(250);
 
 	//マウス上ループ
 	if (g_Mouse.pos_y >= MOUSE_MAX_HEIGHT * (g_LoopCount + 1))
@@ -119,7 +118,7 @@ void Mouse_Draw(void)
 }
 
 //=====================================================
-//x軸座標取得
+//マウスのx軸座標取得
 //=====================================================
 int Mouse_GetPos_X(void)
 {
@@ -127,7 +126,7 @@ int Mouse_GetPos_X(void)
 }
 
 //=====================================================
-//y軸座標取得
+//マウスのy軸座標取得
 //=====================================================
 int Mouse_GetPos_Y(void)
 {

@@ -4,6 +4,8 @@
 #include "input.h"
 #include "debug_font.h"
 #include "mouse.h"
+#include "joycon.h"
+#include "stone.h"
 
 //=====================================================
 //列挙型
@@ -51,11 +53,13 @@ void Camera_Set(D3DXVECTOR3 rotate, D3DXVECTOR3 pos, D3DXVECTOR3 At)
 	D3DXVECTOR3 at(At.x, At.y, At.z);				//見る場所(注視点)
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);				//カメラの上方向ベクトル
 	D3DXMatrixLookAtLH(&mtxView, &eye, &at, &up);	//行列計算
-	D3DXMatrixRotationX(&mtxRotation[X], rotate.x * D3DX_PI / 180);			//X軸回転
-	D3DXMatrixRotationY(&mtxRotation[Y], rotate.y * D3DX_PI / 180);			//Y軸回転
-	D3DXMatrixRotationZ(&mtxRotation[Z], rotate.z * D3DX_PI / 180);			//Z軸回転
+	D3DXMatrixRotationX(&mtxRotation[X], rotate.x * D3DX_PI / 180);				//X軸回転
+	D3DXMatrixRotationY(&mtxRotation[Y], rotate.y * D3DX_PI / 180);				//Y軸回転
+	//D3DXMatrixRotationY(&mtxRotation[Y], -Joycon_Operator() * D3DX_PI / 180);	//y軸回転
+	D3DXMatrixRotationZ(&mtxRotation[Z], rotate.z * D3DX_PI / 180);				//Z軸回転
 
 	mtxView = mtxRotation[X] * mtxRotation[Y] * mtxRotation[Z] * mtxView;
+
 	pDevice->SetTransform(D3DTS_VIEW, &mtxView);
 
 	//プロジェクション変換行列
@@ -128,10 +132,10 @@ D3DXVECTOR3 Camera_Input_At(D3DXVECTOR3 at)
 //=====================================================
 void Camera_Debug_Info(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 at)
 {
-	////座標
-	//DebugFont_Draw(0, 32 * 3, "eye = %.02lf  %.02lf  %.02lf", pos.x, pos.y, pos.z);
-	////注視点
-	//DebugFont_Draw(0, 32 * 4, "at = %.02lf  %.02lf  %.02lf", at.x, at.y, at.z);
-	////回転
-	//DebugFont_Draw(0, 32 * 5, "rot = %.02lf  %.02lf  %.02lf", rot.x, rot.y, rot.z);
+	//座標
+	DebugFont_Draw(0, 32 * 3, "eye = %.02lf  %.02lf  %.02lf", pos.x, pos.y, pos.z);
+	//注視点
+	DebugFont_Draw(0, 32 * 4, "at = %.02lf  %.02lf  %.02lf", at.x, at.y, at.z);
+	//回転
+	DebugFont_Draw(0, 32 * 5, "rot = %.02lf  %.02lf  %.02lf", rot.x, rot.y, rot.z);
 }

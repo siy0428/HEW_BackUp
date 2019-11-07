@@ -37,7 +37,7 @@ void Game_Init(HWND hwnd)
 	Fade_init();
 	EfectInit();
 	Cube_Init();
-	Grid_Init();
+	Grid_Init(50);
 	Mouse_Init();
 	Camera_Init();
 	Stone_Init();
@@ -75,16 +75,16 @@ void Game_Update(void)
 	case SCENE_3D:
 		Mouse_Update();
 		Stone_Update();
-		//ƒJƒƒ‰İ’è
-		Camera_Set(g_CameraRotate, g_CameraPosition, g_CameraAt);
 		//ƒJƒƒ‰“ü—Í‘€ì
-		g_CameraRotate = Camera_Input_Rot(g_CameraRotate);
-		//g_CameraPosition = Camera_Input_Pos(g_CameraPosition);
-		//g_CameraAt = Camera_Input_At(g_CameraAt);
-		g_CameraAt = Stone_GetPos();
-		g_CameraPosition = g_CameraAt;
-		g_CameraPosition.z -= 10.0f;
+		g_CameraPosition = Stone_GetPos(Stone_PlayerTurn());
+		g_CameraAt = g_CameraPosition;
 		g_CameraPosition.y += 10.0f;
+		g_CameraPosition.z -= 10.0f;
+		//g_CameraPosition = D3DXVECTOR3(0.0f, 10.0f, -10.0f);
+		//g_CameraAt = Stone_GetPos(0);
+		//ƒJƒƒ‰İ’è
+		Camera_Set(g_CameraRotate, g_CameraPosition, Stone_GetPos(0));
+		//Camera_Set(g_CameraRotate, g_CameraPosition, g_CameraAt);
 		break;
 	default:
 		break;
