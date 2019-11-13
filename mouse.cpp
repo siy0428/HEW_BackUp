@@ -25,20 +25,20 @@ typedef struct
 //=====================================================
 //グローバル変数
 //=====================================================
-MOUSE g_Mouse;
+MOUSE g_mouse;
 POINT pt;
-static int g_LoopCount = 0;
-static int g_Mouse_Save[MOUSE_SAVE_FRAME] = { 0 };
-static int g_Index = 0;
+static int g_loop_count = 0;
+static int g_mouse_save[MOUSE_SAVE_FRAME] = { 0 };
+static int g_index = 0;
 
 //=====================================================
 //初期化
 //=====================================================
 void Mouse_Init(void)
 {
-	g_Mouse.pos_x = 0;
-	g_Mouse.pos_y = 0;
-	g_Mouse.cursor = TRUE;
+	g_mouse.pos_x = 0;
+	g_mouse.pos_y = 0;
+	g_mouse.cursor = TRUE;
 }
 
 //=====================================================
@@ -54,50 +54,47 @@ void Mouse_Uninit(void)
 //=====================================================
 void Mouse_Update(void)
 {
-	//キーボード更新
-	Keyboard_Update();
-
 	//マウスの座標取得
 	GetCursorPos(&pt);
 
 	//ゲーム内マウスパラメータ
-	g_Mouse.pos_x = pt.x;
-	g_Mouse.pos_y = MOUSE_MAX_HEIGHT + pt.y * -1 + (MOUSE_MAX_HEIGHT * g_LoopCount);	//上下反転
+	g_mouse.pos_x = pt.x;
+	g_mouse.pos_y = MOUSE_MAX_HEIGHT + pt.y * -1 + (MOUSE_MAX_HEIGHT * g_loop_count);	//上下反転
 
 	//マウス上ループ
-	if (g_Mouse.pos_y >= MOUSE_MAX_HEIGHT * (g_LoopCount + 1))
+	if (g_mouse.pos_y >= MOUSE_MAX_HEIGHT * (g_loop_count + 1))
 	{
 		SetCursorPos(pt.x, MOUSE_MAX_HEIGHT);	//画面下に持っていく
-		g_LoopCount++;	//画面内ループ回数
+		g_loop_count++;	//画面内ループ回数
 	}
 	//マウス下ループ
-	else if ((g_Mouse.pos_y - MOUSE_MAX_HEIGHT * g_LoopCount <= 0.0f) && (g_Mouse.pos_y > 0.0f))
+	else if ((g_mouse.pos_y - MOUSE_MAX_HEIGHT * g_loop_count <= 0.0f) && (g_mouse.pos_y > 0.0f))
 	{
 		SetCursorPos(pt.x, 0);	//画面上に持っていく
-		g_LoopCount--;	//画面内ループ回数
+		g_loop_count--;	//画面内ループ回数
 	}
 
 	//マウスパラメータリセット
 	if (Keyboard_IsTrigger(DIK_R))
 	{
-		g_Mouse.pos_y = 0;
-		g_LoopCount = 0;
+		g_mouse.pos_y = 0;
+		g_loop_count = 0;
 	}
 
 	//マウスの座標を10F間記憶
-	if (g_Index < MOUSE_SAVE_FRAME)
+	if (g_index < MOUSE_SAVE_FRAME)
 	{
-		g_Mouse_Save[g_Index] = g_Mouse.pos_y;
-		g_Index++;
+		g_mouse_save[g_index] = g_mouse.pos_y;
+		g_index++;
 	}
 	//10F記憶したら後ろから整列
 	else
 	{
 		for (int i = MOUSE_SAVE_FRAME - 1; i > 0; i--)
 		{
-			g_Mouse_Save[i] = g_Mouse_Save[i - 1];
+			g_mouse_save[i] = g_mouse_save[i - 1];
 		}
-		g_Mouse_Save[0] = g_Mouse.pos_y;
+		g_mouse_save[0] = g_mouse.pos_y;
 	}
 }
 
@@ -108,13 +105,8 @@ void Mouse_Draw(void)
 {
 	//マウスの座標表示
 	DebugFont_Draw(0, 32 * 0, "Rキー:Y軸パラメータリセット");
-	DebugFont_Draw(0, 32 * 1, "x:%d", g_Mouse.pos_x);
-	DebugFont_Draw(0, 32 * 2, "y:%d(反転)", g_Mouse.pos_y);
-	//for (int i = 0; i < MOUSE_SAVE_FRAME; i++)
-	//{
-	//	DebugFont_Draw(0, 32 * (i + 3), "[%d] = %d", i, g_Mouse_Save[i]);
-	//}
-	//DebugFont_Draw(0, 32 * 13, "力 = %d", Mouse_GetForce());
+	DebugFont_Draw(0, 32 * 1, "x:%d", g_mouse.pos_x);
+	DebugFont_Draw(0, 32 * 2, "y:%d(反転)", g_mouse.pos_y);
 }
 
 //=====================================================
@@ -139,7 +131,7 @@ int Mouse_GetPos_Y(void)
 int Mouse_GetForce(void)
 {
 	//今の座標から10F前の座標を引いてパワー算出
-	int force = g_Mouse_Save[0] - g_Mouse_Save[MOUSE_SAVE_FRAME - 1];
+	int force = g_mouse_save[0] - g_mouse_save[MOUSE_SAVE_FRAME - 1];
 
 	//下限設定
 	if (force < 0)

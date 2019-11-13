@@ -24,19 +24,21 @@ typedef enum
 typedef struct
 {
 	D3DXVECTOR3 pos;
+	bool live;
 }CAMERA;
 
 //=====================================================
 //グローバル変数
 //=====================================================
-static CAMERA g_Camera;
+static CAMERA g_camera;
 
 //=====================================================
 //初期化
 //=====================================================
 void Camera_Init(void)
 {
-
+	g_camera.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	g_camera.live = true;
 }
 
 //=====================================================
@@ -47,9 +49,17 @@ void Camera_Set(D3DXVECTOR3 rotate, D3DXVECTOR3 pos, D3DXVECTOR3 At)
 	//デバイスのポインタ取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	//カメラ切り替え
+	if (Keyboard_IsTrigger(DIK_C))
+	{
+		g_camera.live = (g_camera.live) ? false : true;
+	}
+
+	g_camera.pos = (g_camera.live) ? D3DXVECTOR3(0.0f, 10.0f, 0.0f) : pos;
+
 	//ビュー変換
 	D3DXMATRIX mtxView, mtxRotation[XYZ_MAX];		//ビュー変換行列用変数
-	D3DXVECTOR3 eye(pos.x, pos.y, pos.z);			//カメラの座標
+	D3DXVECTOR3 eye(g_camera.pos.x, g_camera.pos.y, g_camera.pos.z);			//カメラの座標
 	D3DXVECTOR3 at(At.x, At.y, At.z);				//見る場所(注視点)
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);				//カメラの上方向ベクトル
 	D3DXMatrixLookAtLH(&mtxView, &eye, &at, &up);	//行列計算
@@ -67,64 +77,6 @@ void Camera_Set(D3DXVECTOR3 rotate, D3DXVECTOR3 pos, D3DXVECTOR3 At)
 	D3DXMatrixPerspectiveFovLH(&mtxProj, D3DXToRadian(60), (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
 	//プロジェクションのアドレス, 視野角の半分の角度(120℃ = 60), アスペクト比, 視野のnear near > 0, 視野のfar
 	pDevice->SetTransform(D3DTS_PROJECTION, &mtxProj);
-}
-
-
-//=====================================================
-//カメラ座標操作
-//=====================================================
-D3DXVECTOR3 Camera_Input_Pos(D3DXVECTOR3 pos)
-{
-	//右移動(中心移動)
-	if (Keyboard_IsPress(DIK_D))
-	{
-		pos.x += 0.25f;
-	}
-	//左移動(中心移動)
-	else if (Keyboard_IsPress(DIK_A))
-	{
-		pos.x -= 0.25f;
-	}
-
-	return pos;
-}
-
-//=====================================================
-//カメラ回転操作
-//=====================================================
-D3DXVECTOR3 Camera_Input_Rot(D3DXVECTOR3 rot)
-{
-	//右回転
-	if (Keyboard_IsPress(DIK_E))
-	{
-		rot.y += 1.0f;
-	}
-	//左回転
-	else if (Keyboard_IsPress(DIK_Q))
-	{
-		rot.y -= 1.0f;
-	}
-
-	return rot;
-}
-
-//=====================================================
-//カメラ注視点操作
-//=====================================================
-D3DXVECTOR3 Camera_Input_At(D3DXVECTOR3 at)
-{
-	//右移動(中心移動)
-	if (Keyboard_IsPress(DIK_D))
-	{
-		at.x += 0.25f;
-	}
-	//左移動(中心移動)
-	else if (Keyboard_IsPress(DIK_A))
-	{
-		at.x -= 0.25f;
-	}
-
-	return at;
 }
 
 //=====================================================

@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "mouse.h"
 #include "stone.h"
+#include "input.h"
 
 //=====================================================
 //グローバル変数
@@ -70,6 +71,9 @@ void Game_Uninit(void)
 //=====================================================
 void Game_Update(void)
 {
+	//キーボード更新
+	Keyboard_Update();
+
 	switch (g_Scene)
 	{
 	case SCENE_3D:
@@ -80,11 +84,8 @@ void Game_Update(void)
 		g_CameraAt = g_CameraPosition;
 		g_CameraPosition.y += 10.0f;
 		g_CameraPosition.z -= 10.0f;
-		//g_CameraPosition = D3DXVECTOR3(0.0f, 10.0f, -10.0f);
-		//g_CameraAt = Stone_GetPos(0);
 		//カメラ設定
-		Camera_Set(g_CameraRotate, g_CameraPosition, Stone_GetPos(0));
-		//Camera_Set(g_CameraRotate, g_CameraPosition, g_CameraAt);
+		Camera_Set(g_CameraRotate, g_CameraPosition, g_CameraAt);
 		break;
 	default:
 		break;
