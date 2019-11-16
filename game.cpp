@@ -10,9 +10,13 @@
 #include "cube.h"
 #include "grid.h"
 #include "camera.h"
+#include "debug_camera.h"
+#include "camera_generator.h"
 #include "mouse.h"
 #include "stone.h"
 #include "input.h"
+#include "goal.h"
+#include "power_gauge.h"
 
 //=====================================================
 //グローバル変数
@@ -32,16 +36,18 @@ void Game_Init(HWND hwnd)
 {
 	g_Scene = SCENE_3D;
 	g_hwnd = hwnd;
-	Number_Init();
+	Goal_Init();	//Stoneより先に呼ばないと初回の距離が正確ではない
 	Score_Init();
 	Debug_Init();
 	Fade_init();
 	EfectInit();
 	Cube_Init();
-	Grid_Init(50);
+	Grid_Init(30);
 	Mouse_Init();
 	Camera_Init();
+	dCamera_Init();
 	Stone_Init();
+	Pow_Gauge_Init();
 	if (g_TexLoad)
 	{
 		if (Texture_Load() > 0)
@@ -64,6 +70,8 @@ void Game_Uninit(void)
 	Grid_Uninit();
 	Mouse_Uninit();
 	Stone_Uninit();
+	Goal_Uninit();
+	Pow_Gauge_Uninit();
 }
 
 //=====================================================
@@ -79,13 +87,9 @@ void Game_Update(void)
 	case SCENE_3D:
 		Mouse_Update();
 		Stone_Update();
-		//カメラ入力操作
-		g_CameraPosition = Stone_GetPos(Stone_PlayerTurn());
-		g_CameraAt = g_CameraPosition;
-		g_CameraPosition.y += 10.0f;
-		g_CameraPosition.z -= 10.0f;
-		//カメラ設定
-		Camera_Set(g_CameraRotate, g_CameraPosition, g_CameraAt);
+		Camera_Change();
+		Goal_Update();
+		Pow_Gauge_Update();
 		break;
 	default:
 		break;
@@ -100,16 +104,16 @@ void Game_Draw(void)
 	switch (g_Scene)
 	{
 	case SCENE_3D:
-		//カメラ情報出力
-		Camera_Debug_Info(g_CameraPosition, g_CameraRotate, g_CameraAt);
-		//Cube_Dice();
-		//Cube_jyugyou();
 		Grid_Draw();
 		Mouse_Draw();
 		Stone_Draw();
+		Goal_Draw();
+		Pow_Gauge_Draw();
 		break;
 	}
 }
+//カメラ情報出力
+//Camera_Debug_Info(g_CameraPosition, g_CameraRotate, g_CameraAt);
 
 //=====================================================
 //シーンの切り替え

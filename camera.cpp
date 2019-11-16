@@ -6,6 +6,7 @@
 #include "mouse.h"
 #include "joycon.h"
 #include "stone.h"
+#include "goal.h"
 
 //=====================================================
 //列挙型
@@ -24,13 +25,13 @@ typedef enum
 typedef struct
 {
 	D3DXVECTOR3 pos;
-	bool live;
 }CAMERA;
 
 //=====================================================
 //グローバル変数
 //=====================================================
 static CAMERA g_camera;
+static D3DXVECTOR3 g_look(0.0f, 0.0f, 0.0f);
 
 //=====================================================
 //初期化
@@ -38,37 +39,31 @@ static CAMERA g_camera;
 void Camera_Init(void)
 {
 	g_camera.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	g_camera.live = true;
+	g_look = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 }
 
 //=====================================================
 //カメラの設定
 //=====================================================
-void Camera_Set(D3DXVECTOR3 rotate, D3DXVECTOR3 pos, D3DXVECTOR3 At)
+void Camera_Set(void)
 {
 	//デバイスのポインタ取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	D3DXMATRIX mtxRotation[XYZ_MAX];
+	D3DXVECTOR3 At = Stone_GetPos(Stone_PlayerTurn());
 
-	//カメラ切り替え
-	if (Keyboard_IsTrigger(DIK_C))
-	{
-		g_camera.live = (g_camera.live) ? false : true;
-	}
-
-	g_camera.pos = (g_camera.live) ? D3DXVECTOR3(0.0f, 10.0f, 0.0f) : pos;
+	g_camera.pos = D3DXVECTOR3(0.0f, 10.0f, -10.0f);
+	//注視点回転
+	D3DXMatrixRotationY(&mtxRotation[Y], Joycon_Operator() * D3DX_PI / 180);
+	D3DXVec3TransformNormal(&g_camera.pos, &g_camera.pos, &mtxRotation[Y]);
+	g_camera.pos += At;
 
 	//ビュー変換
-	D3DXMATRIX mtxView, mtxRotation[XYZ_MAX];		//ビュー変換行列用変数
-	D3DXVECTOR3 eye(g_camera.pos.x, g_camera.pos.y, g_camera.pos.z);			//カメラの座標
+	D3DXMATRIX mtxView;		//ビュー変換行列用変数
+	D3DXVECTOR3 eye(g_camera.pos.x, g_camera.pos.y, g_camera.pos.z);	//カメラの座標
 	D3DXVECTOR3 at(At.x, At.y, At.z);				//見る場所(注視点)
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);				//カメラの上方向ベクトル
 	D3DXMatrixLookAtLH(&mtxView, &eye, &at, &up);	//行列計算
-	D3DXMatrixRotationX(&mtxRotation[X], rotate.x * D3DX_PI / 180);				//X軸回転
-	D3DXMatrixRotationY(&mtxRotation[Y], rotate.y * D3DX_PI / 180);				//Y軸回転
-	//D3DXMatrixRotationY(&mtxRotation[Y], -Joycon_Operator() * D3DX_PI / 180);	//y軸回転
-	D3DXMatrixRotationZ(&mtxRotation[Z], rotate.z * D3DX_PI / 180);				//Z軸回転
-
-	mtxView = mtxRotation[X] * mtxRotation[Y] * mtxRotation[Z] * mtxView;
 
 	pDevice->SetTransform(D3DTS_VIEW, &mtxView);
 
