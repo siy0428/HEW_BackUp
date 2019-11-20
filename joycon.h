@@ -3,5 +3,6 @@
 
 void Joycon_Init(void);
 int Joycon_Operator(void);
+void Joycon_Reset(void);
 
 #endif

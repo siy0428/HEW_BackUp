@@ -1,16 +1,18 @@
 #include "input.h"
+#include "dinput.h"
+#include "JoyInput.h"
 
 //=====================================================
 //グローバル変数
 //=====================================================
-static float g_Stick_y = 0;
+static float g_stick_y = 0;
 
 //=====================================================
 //初期化
 //=====================================================
 void Joycon_Init(void)
 {
-	g_Stick_y = 0.0f;
+	g_stick_y = 0.0f;
 }
 
 //=====================================================
@@ -18,15 +20,16 @@ void Joycon_Init(void)
 //=====================================================
 int Joycon_Operator(void)
 {
-	//右回転
-	if (Keyboard_IsPress(DIK_RIGHTARROW))
-	{
-		g_Stick_y++;
-	}
-	//左回転
-	else if (Keyboard_IsPress(DIK_LEFTARROW))
-	{
-		g_Stick_y--;
-	}
-	return g_Stick_y;
+	//スティック操作
+	g_stick_y += GetStick().x / 1000;
+
+	return g_stick_y;
+}
+
+//=====================================================
+//回転量リセット
+//=====================================================
+void Joycon_Reset(void)
+{
+	g_stick_y = 0.0f;
 }

@@ -10,8 +10,16 @@
 #include "cube.h"
 #include "grid.h"
 #include "camera.h"
+#include "debug_camera.h"
+#include "camera_generator.h"
 #include "mouse.h"
 #include "stone.h"
+#include "input.h"
+#include "goal.h"
+#include "power_gauge.h"
+#include "JoyInput.h"
+#include "number.h"
+#include "sprite.h"
 
 //=====================================================
 //グローバル変数
@@ -31,16 +39,19 @@ void Game_Init(HWND hwnd)
 {
 	g_Scene = SCENE_3D;
 	g_hwnd = hwnd;
-	Number_Init();
+	Goal_Init();	//Stoneより先に呼ばないと初回の距離が正確ではない
 	Score_Init();
 	Debug_Init();
 	Fade_init();
 	EfectInit();
 	Cube_Init();
-	Grid_Init();
+	Grid_Init(30);
 	Mouse_Init();
 	Camera_Init();
+	dCamera_Init();
 	Stone_Init();
+	Pow_Gauge_Init();
+	InitDirectInput(hwnd);
 	if (g_TexLoad)
 	{
 		if (Texture_Load() > 0)
@@ -63,6 +74,9 @@ void Game_Uninit(void)
 	Grid_Uninit();
 	Mouse_Uninit();
 	Stone_Uninit();
+	Goal_Uninit();
+	Pow_Gauge_Uninit();
+	UninitDirectInput();
 }
 
 //=====================================================
@@ -70,21 +84,17 @@ void Game_Uninit(void)
 //=====================================================
 void Game_Update(void)
 {
+	//キーボード更新
+	Keyboard_Update();
+
 	switch (g_Scene)
 	{
 	case SCENE_3D:
 		Mouse_Update();
 		Stone_Update();
-		//カメラ入力操作
-		//g_CameraRotate = Camera_Input_Rot(g_CameraRotate);
-		g_CameraPosition = Stone_GetPos();
-		//g_CameraAt = Camera_Input_At(g_CameraAt);
-		g_CameraAt = g_CameraPosition;
-		g_CameraPosition.y += 10.0f;
-		g_CameraPosition.z -= 10.0f;
-		//カメラ設定
-		//Camera_Set(g_CameraRotate, g_CameraPosition, g_CameraAt);
-		Camera_Set(g_CameraRotate, g_CameraPosition, Stone_GetPos());
+		Camera_Change();
+		Goal_Update();
+		UpdateInput();
 		break;
 	default:
 		break;
@@ -99,16 +109,25 @@ void Game_Draw(void)
 	switch (g_Scene)
 	{
 	case SCENE_3D:
-		//カメラ情報出力
-		Camera_Debug_Info(g_CameraPosition, g_CameraRotate, g_CameraAt);
-		//Cube_Dice();
-		//Cube_jyugyou();
 		Grid_Draw();
 		Mouse_Draw();
 		Stone_Draw();
+		Goal_Draw();
+		Pow_Gauge_Draw();
+		//ジョイコンデバッグ
+		D3DXVECTOR3 gyro = GetGyro();
+		D3DXVECTOR2 stick = GetStick();
+		DebugFont_Draw(0, 32 * 10, "gyro.x = %.02lf", gyro.x);
+		DebugFont_Draw(0, 32 * 11, "gyro.y = %.02lf", gyro.y);
+		DebugFont_Draw(0, 32 * 12, "gyro.z = %.02lf", gyro.z);
+		DebugFont_Draw(0, 32 * 13, "stick.x = %.02lf", stick.x);
+		DebugFont_Draw(0, 32 * 14, "stick.y = %.02lf", stick.y);
+		DebugFont_Draw(0, 32 * 15, "ボタン = %d", GetButton(JC_X));
 		break;
 	}
 }
+//カメラ情報出力
+//Camera_Debug_Info(g_CameraPosition, g_CameraRotate, g_CameraAt);
 
 //=====================================================
 //シーンの切り替え
