@@ -104,9 +104,10 @@ void Mouse_Update(void)
 void Mouse_Draw(void)
 {
 	//マウスの座標表示
-	DebugFont_Draw(0, 32 * 0, "Rキー:Y軸パラメータリセット");
+	DebugFont_Draw(0, 32 * 0, "force = %d", Mouse_GetForce());
 	DebugFont_Draw(0, 32 * 1, "x:%d", g_mouse.pos_x);
 	DebugFont_Draw(0, 32 * 2, "y:%d(反転)", g_mouse.pos_y);
+
 }
 
 //=====================================================
@@ -133,6 +134,7 @@ int Mouse_GetForce(void)
 	//今の座標から10F前の座標を引いてパワー算出
 	int force = g_mouse_save[0] - g_mouse_save[MOUSE_SAVE_FRAME - 1];
 
+	
 	//下限設定
 	if (force < 0)
 	{

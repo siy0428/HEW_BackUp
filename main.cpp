@@ -70,6 +70,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	RegisterClass(&wc);		//オリジナルのクラス(ウィンドウ)を登録
 
 	const DWORD window_style = WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX;		//ウィンドウ形式の定数化
+	//WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX
+	//WS_VISIBLE | WS_POPUP
 
 	RECT window_rect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };		//幅と高さを計算する
 
@@ -93,6 +95,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		window_y,				//y
 		window_width,			//幅
 		window_height,			//高さ
+		//0, 
+		//0,
+		//desktop_width,
+		//desktop_height,
 		NULL,
 		NULL,
 		hInstance,

@@ -52,7 +52,7 @@ void Camera_Set(void)
 	D3DXMATRIX mtxRotation[XYZ_MAX];
 	D3DXVECTOR3 At = Stone_GetPos(Stone_PlayerTurn());
 
-	g_camera.pos = D3DXVECTOR3(0.0f, 10.0f, -10.0f);
+	g_camera.pos = D3DXVECTOR3(0.0f, 5.0f, -10.0f);
 	//íçéãì_âÒì]
 	D3DXMatrixRotationY(&mtxRotation[Y], Joycon_Operator() * D3DX_PI / 180);
 	D3DXVec3TransformNormal(&g_camera.pos, &g_camera.pos, &mtxRotation[Y]);

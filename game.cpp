@@ -17,6 +17,11 @@
 #include "input.h"
 #include "goal.h"
 #include "power_gauge.h"
+#include "JoyInput.h"
+#include "number.h"
+#include "sprite.h"
+#include "result.h"
+#include "light.h"
 
 //=====================================================
 //グローバル変数
@@ -42,12 +47,15 @@ void Game_Init(HWND hwnd)
 	Fade_init();
 	EfectInit();
 	Cube_Init();
-	Grid_Init(30);
+	Grid_Init(100);
 	Mouse_Init();
 	Camera_Init();
 	dCamera_Init();
 	Stone_Init();
 	Pow_Gauge_Init();
+	InitDirectInput(hwnd);
+	Result_Init();
+	Light_Set();
 	if (g_TexLoad)
 	{
 		if (Texture_Load() > 0)
@@ -72,6 +80,8 @@ void Game_Uninit(void)
 	Stone_Uninit();
 	Goal_Uninit();
 	Pow_Gauge_Uninit();
+	UninitDirectInput();
+	Result_Uninit();
 }
 
 //=====================================================
@@ -89,7 +99,8 @@ void Game_Update(void)
 		Stone_Update();
 		Camera_Change();
 		Goal_Update();
-		Pow_Gauge_Update();
+		UpdateInput();
+		Result_Update();
 		break;
 	default:
 		break;
@@ -109,6 +120,16 @@ void Game_Draw(void)
 		Stone_Draw();
 		Goal_Draw();
 		Pow_Gauge_Draw();
+		Result_Draw();
+		//ジョイコンデバッグ
+		D3DXVECTOR3 gyro = GetGyro();
+		D3DXVECTOR2 stick = GetStick();
+		DebugFont_Draw(0, 32 * 10, "gyro.x = %.02lf", gyro.x);
+		DebugFont_Draw(0, 32 * 11, "gyro.y = %.02lf", gyro.y);
+		DebugFont_Draw(0, 32 * 12, "gyro.z = %.02lf", gyro.z);
+		DebugFont_Draw(0, 32 * 13, "stick.x = %.02lf", stick.x);
+		DebugFont_Draw(0, 32 * 14, "stick.y = %.02lf", stick.y);
+		DebugFont_Draw(0, 32 * 15, "ボタン = %d", GetButton(JC_X));
 		break;
 	}
 }
