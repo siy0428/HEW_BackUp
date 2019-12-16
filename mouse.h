@@ -8,5 +8,6 @@ void Mouse_Draw(void);		//描画
 int Mouse_GetPos_X(void);	//マウスのx軸方向座標取得
 int Mouse_GetPos_Y(void);	//マウスのy軸方向座標取得
 int Mouse_GetForce(void);	//マウスのスクロールで0～100の値を返す
+void Mouse_Reset(void);		//マウスのパラメータリセット
 
 #endif

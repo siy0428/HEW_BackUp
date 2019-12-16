@@ -59,7 +59,10 @@ HRESULT UpdateInput();
 void UninitDirectInput();
 
 //ボタンの入力状態をGetする
-bool GetButton(int butttonIndex);
+bool GetButton(int buttonIndex);
+
+//ボタンの入力状態を1FGetする
+bool GetButton_isTrigger(int buttonIndex);
 
 //ジャイロの入力状態をGetする、
 //毎フレームの入力状態を返す。
@@ -67,6 +70,8 @@ D3DXVECTOR3 GetGyro();
 
 //スティックの値を取得する
 D3DXVECTOR2 GetStick();
+
+void Draw(void);
 
 
 #endif

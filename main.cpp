@@ -69,7 +69,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	RegisterClass(&wc);		//オリジナルのクラス(ウィンドウ)を登録
 
-	const DWORD window_style = WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX;		//ウィンドウ形式の定数化
+	const DWORD window_style = WS_VISIBLE | WS_POPUP;		//ウィンドウ形式の定数化
 	//WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX
 	//WS_VISIBLE | WS_POPUP
 
@@ -91,14 +91,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		WINDOW_CAPTION,			//ウィンドウに表示するタイトル
 		window_style,			//ウィンドウの形式の指定,ウィンドウサイズを変更させない
 		//WS_THICFRAME = 画面サイズを変更できない。	WS_MAXIMIZEBOX = 最大化が押せなくなる。
-		window_x,				//x
-		window_y,				//y
-		window_width,			//幅
-		window_height,			//高さ
-		//0, 
-		//0,
-		//desktop_width,
-		//desktop_height,
+		//window_x,				//x
+		//window_y,				//y
+		//window_width,			//幅
+		//window_height,			//高さ
+		0, 
+		0,
+		desktop_width,
+		desktop_height,
 		NULL,
 		NULL,
 		hInstance,
@@ -264,7 +264,7 @@ void Draw(void)
 	//ポリゴンのα値を無視しない設定
 
 	//画面クリア
-	pDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_RGBA(0, 0, 255, 0), 1.0f, 0);//, 全体をクリアする場合はNULL。rect型の配列の要素数を入れるとその形にくり抜ける, TARGET(色)ZBUFFER(深度)のクリア, 
+	pDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_RGBA(0, 0, 255, 255), 1.0f, 0);//, 全体をクリアする場合はNULL。rect型の配列の要素数を入れるとその形にくり抜ける, TARGET(色)ZBUFFER(深度)のクリア, 
 	//第三引数があれば色の指定, ZBUFFERがあれば0が手前、1が奥(一番うしろでクリア),0でok
 	pDevice->BeginScene();						//シーンの始まり
 	Debug_Begin();

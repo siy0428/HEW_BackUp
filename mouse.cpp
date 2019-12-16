@@ -10,7 +10,7 @@
 //=====================================================
 #define MOUSE_MAX_HEIGHT (767)	//マウス移動上限(高さ:y軸)
 #define MOUSE_SAVE_FRAME (10)	//マウスの座標の記憶フレーム数
-#define MOUSE_MAX_FORCE (3800)	//最大パワー
+#define MOUSE_MAX_FORCE (250 * MOUSE_SAVE_FRAME)	//最大パワー
 
 //=====================================================
 //構造体宣言
@@ -59,7 +59,7 @@ void Mouse_Update(void)
 
 	//ゲーム内マウスパラメータ
 	g_mouse.pos_x = pt.x;
-	g_mouse.pos_y = MOUSE_MAX_HEIGHT + pt.y * -1 + (MOUSE_MAX_HEIGHT * g_loop_count);	//上下反転
+	g_mouse.pos_y = MOUSE_MAX_HEIGHT - pt.y + (MOUSE_MAX_HEIGHT * g_loop_count);	//上下反転
 
 	//マウス上ループ
 	if (g_mouse.pos_y >= MOUSE_MAX_HEIGHT * (g_loop_count + 1))
@@ -84,7 +84,7 @@ void Mouse_Update(void)
 	//マウスの座標を10F間記憶
 	if (g_index < MOUSE_SAVE_FRAME)
 	{
-		g_mouse_save[g_index] = g_mouse.pos_y;
+		g_mouse_save[MOUSE_SAVE_FRAME - 1 - g_index] = g_mouse.pos_y;
 		g_index++;
 	}
 	//10F記憶したら後ろから整列
@@ -134,12 +134,12 @@ int Mouse_GetForce(void)
 	//今の座標から10F前の座標を引いてパワー算出
 	int force = g_mouse_save[0] - g_mouse_save[MOUSE_SAVE_FRAME - 1];
 
-	
 	//下限設定
 	if (force < 0)
 	{
 		force = 0;
 	}
+
 	//上限設定
 	else if (force >= MOUSE_MAX_FORCE)
 	{
@@ -150,4 +150,16 @@ int Mouse_GetForce(void)
 	force = 100 * force / MOUSE_MAX_FORCE;
 
 	return force;
+}
+
+//=====================================================
+//マウスパラメータリセット
+//=====================================================
+void Mouse_Reset(void)
+{
+	for (int i = 0; i < MOUSE_SAVE_FRAME - 1; i++)
+	{
+		g_mouse_save[i] = 0;
+	}
+	g_index = 0;
 }

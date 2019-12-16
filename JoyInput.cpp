@@ -19,6 +19,7 @@
 #include<dinput.h>
 #include <dinputd.h>
 #include <stdio.h>
+#include "debug_font.h"
 
 #pragma region MicrosoftのDInputサンプルプログラム（できるだけ動かない）
 
@@ -35,6 +36,9 @@ DIDEVCAPS				glbdiDevCaps;
 DIJOYSTATE2 nowInput;
 DIJOYSTATE2 lastInput;
 
+static bool g_old_press[128] = { false };
+static bool g_now_buttons[128] = { false };
+
 BOOL CALLBACK EnumJoysticksCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext);
 BOOL CALLBACK EnumObjectsCallback(const DIDEVICEOBJECTINSTANCE* pdidoi, VOID* pContext);
 
@@ -47,11 +51,11 @@ HRESULT InitDirectInput(HWND hWnd) {
 	enumContext.bPreferredJoyCfgValid = false;
 
 	if (FAILED(hr = DirectInput8Create(
-			GetModuleHandle(nullptr), 
-			DIRECTINPUT_VERSION,
-			IID_IDirectInput8, 
-			(VOID**)&glbDI, 
-			nullptr)))
+		GetModuleHandle(nullptr),
+		DIRECTINPUT_VERSION,
+		IID_IDirectInput8,
+		(VOID**)&glbDI,
+		nullptr)))
 	{
 		return hr;
 	}
@@ -61,7 +65,7 @@ HRESULT InitDirectInput(HWND hWnd) {
 		return hr;
 
 	PreferredJoyCfg.dwSize = sizeof(PreferredJoyCfg);
-	if (SUCCEEDED(pJoyConfig->GetConfig(0, &PreferredJoyCfg, DIJC_GUIDINSTANCE))) 
+	if (SUCCEEDED(pJoyConfig->GetConfig(0, &PreferredJoyCfg, DIJC_GUIDINSTANCE)))
 	{
 		enumContext.bPreferredJoyCfgValid = true;
 	}
@@ -70,7 +74,7 @@ HRESULT InitDirectInput(HWND hWnd) {
 	if (FAILED(hr = glbDI->EnumDevices(
 		DI8DEVCLASS_GAMECTRL,
 		EnumJoysticksCallback,
-		&enumContext,DIEDFL_ATTACHEDONLY)))
+		&enumContext, DIEDFL_ATTACHEDONLY)))
 	{
 		return hr;
 	}
@@ -89,7 +93,7 @@ HRESULT InitDirectInput(HWND hWnd) {
 	}
 
 	if (FAILED(hr = glbJoystick->SetDataFormat(&c_dfDIJoystick2)))
-	{ 
+	{
 		return hr;
 	}
 	if (FAILED(hr = glbJoystick->SetCooperativeLevel(hWnd, DISCL_EXCLUSIVE |
@@ -141,8 +145,8 @@ BOOL CALLBACK EnumObjectsCallback(const DIDEVICEOBJECTINSTANCE* pdidoi,
 {
 	HWND hDlg = (HWND)pContext;
 
-	static int nSliderCount = 0;  
-	static int nPOVCount = 0;     
+	static int nSliderCount = 0;
+	static int nPOVCount = 0;
 
 	if (pdidoi->dwType & DIDFT_AXIS)
 	{
@@ -150,12 +154,12 @@ BOOL CALLBACK EnumObjectsCallback(const DIDEVICEOBJECTINSTANCE* pdidoi,
 		diprg.diph.dwSize = sizeof(DIPROPRANGE);
 		diprg.diph.dwHeaderSize = sizeof(DIPROPHEADER);
 		diprg.diph.dwHow = DIPH_BYID;
-		diprg.diph.dwObj = pdidoi->dwType; 
+		diprg.diph.dwObj = pdidoi->dwType;
 		diprg.lMin = -1000;
 		diprg.lMax = +1000;
 
 		if (FAILED(glbJoystick->SetProperty(DIPROP_RANGE, &diprg.diph)))
-		{ 
+		{
 			return DIENUM_STOP;
 		}
 	}
@@ -267,15 +271,29 @@ HRESULT UpdateInput()
 #pragma endregion
 
 
-bool GetButton(int butttonIndex) {
-	return nowInput.rgbButtons[butttonIndex];
+bool GetButton(int buttonIndex) {
+	return nowInput.rgbButtons[buttonIndex];
 }
 
+bool GetButton_isTrigger(int buttonIndex)
+{
+	//1F前がfalseで現在がtrueであればTrigger
+	g_now_buttons[buttonIndex] = nowInput.rgbButtons[buttonIndex] && !g_old_press[buttonIndex];
+	//1F前の入力状態記憶
+	g_old_press[buttonIndex] = nowInput.rgbButtons[buttonIndex];
+
+	return g_now_buttons[buttonIndex];
+}
 
 D3DXVECTOR3 GetGyro() {
-	return { (float)nowInput.rglSlider[0] ,(float)nowInput.rglSlider[1] ,(float)nowInput.lRz};
+	return { (float)nowInput.rglSlider[0] ,(float)nowInput.rglSlider[1] ,(float)nowInput.lRz };
 }
 
-D3DXVECTOR2 GetStick(){
+D3DXVECTOR2 GetStick() {
 	return { (float)nowInput.lX, (float)nowInput.lY };
+}
+
+void Draw(void)
+{
+
 }

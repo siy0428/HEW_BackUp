@@ -3,11 +3,17 @@
 
 static unsigned int g_Tex;
 
+//=====================================================
+//‰Šú‰»
+//=====================================================
 void Number_Init(void)
 {
 	g_Tex = Texture_SetLoadFile("Texture\\number256.tga", 256 * 2, 256 * 2);
 }
 
+//=====================================================
+//•`‰æ
+//=====================================================
 void Number_Draw(int number, float x, float y)
 {
 	if (number < 0 || number > 9)
@@ -17,6 +23,9 @@ void Number_Draw(int number, float x, float y)
 	Sprite_Draw(g_Tex, x, y, number * Texture_GetWidth(g_Tex) / 16, Texture_GetHeight(g_Tex), Texture_GetWidth(g_Tex) / 16, Texture_GetHeight(g_Tex));
 }
 
+//=====================================================
+//•`‰æ(ƒTƒCƒYw’è)
+//=====================================================
 void Number_Draw(int number, float x, float y, int cx, int cy, int cw, int ch)
 {
 	if (number < 0 || number > 9)

@@ -16,5 +16,6 @@ void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch, 
 void Sprite_Reverse_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch);
 void Sprite_Upside_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch);
 void Sprite_SetColor(D3DXCOLOR color);
+void Sprite_3DDraw(int texId, float dx, float dy);
 
 #endif

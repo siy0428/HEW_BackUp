@@ -15,6 +15,6 @@ int Texture_GetWidth(int id);											//(–ß‚è’l)ƒeƒNƒXƒ`ƒƒ‚Ì• ƒeƒNƒXƒ`ƒƒ‚Ì—\–
 int Texture_GetHeight(int id);											//(–ß‚è’l)ƒeƒNƒXƒ`ƒƒ‚Ì‚‚³ ƒeƒNƒXƒ`ƒƒ‚Ì—\–ñ”Ô†
 
 #define TEXTUREDATA_MAX (64)	//ƒeƒNƒXƒ`ƒƒ‚ÌÅ‘å”
-#define FILENAME_MAX (128)		//ƒtƒ@ƒCƒ‹–¼‚ÌÅ‘å•¶š”
+#define TEX_FILENAME_MAX (128)		//ƒtƒ@ƒCƒ‹–¼‚ÌÅ‘å•¶š”
 
 #endif

@@ -22,6 +22,11 @@
 #include "sprite.h"
 #include "result.h"
 #include "light.h"
+#include "mesh.h"
+#include "guide_line.h"
+#include "penguin.h"
+#include "OXAllocateHierarchy.h"
+#include "anime_test.h"
 
 //=====================================================
 //グローバル変数
@@ -42,12 +47,11 @@ void Game_Init(HWND hwnd)
 	g_Scene = SCENE_3D;
 	g_hwnd = hwnd;
 	Goal_Init();	//Stoneより先に呼ばないと初回の距離が正確ではない
-	Score_Init();
 	Debug_Init();
 	Fade_init();
 	EfectInit();
 	Cube_Init();
-	Grid_Init(100);
+	//Grid_Init(10);
 	Mouse_Init();
 	Camera_Init();
 	dCamera_Init();
@@ -56,6 +60,10 @@ void Game_Init(HWND hwnd)
 	InitDirectInput(hwnd);
 	Result_Init();
 	Light_Set();
+	Score_Init();
+	Mesh_Init();
+	GuideLine_Init();
+	Anime_Test_Init();
 	if (g_TexLoad)
 	{
 		if (Texture_Load() > 0)
@@ -82,6 +90,10 @@ void Game_Uninit(void)
 	Pow_Gauge_Uninit();
 	UninitDirectInput();
 	Result_Uninit();
+	Mesh_Uninit();
+	GuideLine_Uninit();
+	Anime_Test_Uninit();
+	Texture_Destroy();
 }
 
 //=====================================================
@@ -91,6 +103,7 @@ void Game_Update(void)
 {
 	//キーボード更新
 	Keyboard_Update();
+	UpdateInput();
 
 	switch (g_Scene)
 	{
@@ -99,8 +112,8 @@ void Game_Update(void)
 		Stone_Update();
 		Camera_Change();
 		Goal_Update();
-		UpdateInput();
 		Result_Update();
+		GuideLine_Update();
 		break;
 	default:
 		break;
@@ -115,21 +128,17 @@ void Game_Draw(void)
 	switch (g_Scene)
 	{
 	case SCENE_3D:
-		Grid_Draw();
+		//Grid_Draw();
 		Mouse_Draw();
 		Stone_Draw();
 		Goal_Draw();
 		Pow_Gauge_Draw();
+		Mesh_Draw();
+		GuideLine_Draw();
 		Result_Draw();
-		//ジョイコンデバッグ
-		D3DXVECTOR3 gyro = GetGyro();
-		D3DXVECTOR2 stick = GetStick();
-		DebugFont_Draw(0, 32 * 10, "gyro.x = %.02lf", gyro.x);
-		DebugFont_Draw(0, 32 * 11, "gyro.y = %.02lf", gyro.y);
-		DebugFont_Draw(0, 32 * 12, "gyro.z = %.02lf", gyro.z);
-		DebugFont_Draw(0, 32 * 13, "stick.x = %.02lf", stick.x);
-		DebugFont_Draw(0, 32 * 14, "stick.y = %.02lf", stick.y);
-		DebugFont_Draw(0, 32 * 15, "ボタン = %d", GetButton(JC_X));
+		Anime_Test_Draw();
+		Score_Draw(500, 500.0f, 0.0f, 8);
+		Draw();
 		break;
 	}
 }

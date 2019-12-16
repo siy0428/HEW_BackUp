@@ -113,7 +113,7 @@ void Goal_Draw(void)
 	pDevice->SetFVF(FVF_CUBE);						//デバイスに頂点データを渡す
 	pDevice->SetTexture(0, NULL);					//テクスチャをデバイスに渡す
 	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);	//FALSE:ライトOFF TRUE:ライトON
-	pDevice->DrawPrimitiveUP(D3DPT_LINELIST, 36, g_goal_vertex, sizeof(GoalVertex));
+	pDevice->DrawPrimitiveUP(D3DPT_LINELIST, 16, g_goal_vertex, sizeof(GoalVertex));
 }
 
 //=====================================================

@@ -13,12 +13,24 @@
 #include "power_gauge.h"
 #include "game.h"
 #include "result.h"
-#include "fbx_model.h"
+#include "model.h"
+#include "OXAllocateHierarchy.h"
 
 //====================================================
 //マクロ定義
 //====================================================
 #define DEAD_ZONE (0.001f)	//小数点誤差用
+
+//====================================================
+//列挙型
+//====================================================
+typedef enum
+{
+	STONE_NORMAL,	//通常
+	STONE_HEAVY,	//重い
+	STONE_FLOAT,	//浮遊
+	STONE_TYPE_MAX
+}STONE_TYPE;
 
 //====================================================
 //構造体宣言
@@ -40,12 +52,13 @@ typedef struct
 	D3DXVECTOR3 pos = { 0.0f, 0.5f, 0.0f };				//位置座標
 	D3DXVECTOR3 start_pos = { 0.0f, 0.5f, 0.0f };		//1F前の位置座標
 	D3DXCOLOR color = { 1.0f, 1.0f, 1.0f, 1.0f };		//ストーンの色情報
+	unsigned int model[STONE_TYPE_MAX];
+	STONE_TYPE type;
+	int type_index;
 	float move;
 	bool is_turn;
-	bool is_move;
 	float goal_range;
 	float stone_range;
-	bool on_goal;
 }Stone;
 
 //=====================================================
@@ -103,7 +116,44 @@ static bool g_throw_start = false;
 static float gyro_rotation = 0.0f;
 static float rot_count = 0;
 static int g_turn_count = 0;
-static unsigned int g_model;
+static const char g_filename[16][256]
+{
+	//1P
+	"model\\stone\\stone1p\\stone1p.x",
+	"model\\stone\\omoi1p\\omoi1p.x",
+	"model\\stone\\uiteru1p\\uiteru1p.x",
+	//2P
+	"model\\stone\\stone2p\\stone2p.x",
+	"model\\stone\\omoi2p\\omoi2p.x",
+	"model\\stone\\uiteru2p\\uiteru2p.x",
+	//3P
+	"model\\stone\\stone3p\\stone3p.x",
+	"model\\stone\\omoi3p\\omoi3p.x",
+	"model\\stone\\uiteru3p\\uiteru3p.x",
+	//4P
+	"model\\stone\\stone4p\\stone4p.x",
+	"model\\stone\\omoi4p\\omoi4p.x",
+	"model\\stone\\uiteru4p\\uiteru4p.x"
+};
+static const char g_pathname[16][256]
+{
+	//1P
+	"model\\stone\\stone1p\\",
+	"model\\stone\\omoi1p\\",
+	"model\\stone\\uiteru1p\\",
+	//2P
+	"model\\stone\\stone2p\\",
+	"model\\stone\\omoi2p\\",
+	"model\\stone\\uiteru2p\\",
+	//3P
+	"model\\stone\\stone3p\\",
+	"model\\stone\\omoi3p\\",
+	"model\\stone\\uiteru3p\\",
+	//4P
+	"model\\stone\\stone4p\\",
+	"model\\stone\\omoi4p\\",
+	"model\\stone\\uiteru4p\\"
+};
 
 //=====================================================
 //初期化
@@ -118,21 +168,27 @@ void Stone_Init(void)
 		D3DXMatrixTranslation(&g_stone[i].mtx_world, g_stone[i].pos.x, g_stone[i].pos.y, g_stone[i].pos.z);		//平行移動
 		g_stone[i].move = 0.0f;			//移動量
 		g_stone[i].is_turn = false;
-		g_stone[i].is_move = false;
 		g_stone[i].goal_range = Goal_Range(g_stone[i].pos);
 		g_stone[i].stone_range = 0.0f;
-		g_stone[i].on_goal = false;
+		g_stone[i].type = STONE_NORMAL;
+		g_stone[i].type_index = g_stone[i].type;
+		if (g_filename[i] != '\0')
+		{
+			g_stone[i].model[STONE_NORMAL] = Model_Load(g_filename[i * 3], g_pathname[i * 3]);			//通常タイプ
+			g_stone[i].model[STONE_HEAVY] = Model_Load(g_filename[1 + i * 3], g_pathname[1 + i * 3]);	//重いタイプ
+			g_stone[i].model[STONE_FLOAT] = Model_Load(g_filename[2 + i * 3], g_pathname[2 + i * 3]);	//浮遊タイプ
+		}
 	}
+
 	g_stone[0].is_turn = true;		//最初のストーンのターン設定
-	g_stone[0].color = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
-	g_stone[1].color = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-	g_stone[2].color = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
-	g_stone[3].color = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
+	g_stone[0].color = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);	//1Pマテリアルカラー
+	g_stone[1].color = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);	//2Pマテリアルカラー
+	g_stone[2].color = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);	//3Pマテリアルカラー
+	g_stone[3].color = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);	//4Pマテリアルカラー
 	g_player_turn = 0;// Stone_Turn();
 	g_throw_start = false;
 	gyro_rotation = 0.0f;
 	g_turn_count = 0;
-	g_model = Fbx_Model_Load("model\\stone\\stone_update_later.fbx", "model\\stone\\", 0.01f);
 }
 
 //=====================================================
@@ -151,10 +207,47 @@ void Stone_Update(void)
 	//どのプレイヤーのターンか判別
 	for (int i = 0; i < PLAYER_MAX_NUM; i++)
 	{
-		//ターンが来てなければ次のプレイヤー比較
+		//ターンが来てなければ次のプレイヤーへ
 		if (!g_stone[i].is_turn)
 		{
 			continue;
+		}
+
+		//ストーン切り替え
+		switch (g_stone[i].type_index)
+		{
+		case 0:
+			g_stone[i].type = STONE_NORMAL;
+			break;
+		case 1:
+			g_stone[i].type = STONE_HEAVY;
+			break;
+		case 2:
+			g_stone[i].type = STONE_FLOAT;
+			break;
+		default:
+			break;
+		}
+
+		//ストーン切り替え(左)
+		if (GetButton_isTrigger(JC_Y) && !Stone_Move(i))
+		{
+			g_stone[i].type_index = (g_stone[i].type_index + 1) % 3;
+		}
+		//ストーン切り替え(右)
+		if (GetButton_isTrigger(JC_A) && !Stone_Move(i))
+		{
+			g_stone[i].type_index--;
+			if (g_stone[i].type_index < 0)
+			{
+				g_stone[i].type_index = STONE_TYPE_MAX - 1;
+			}
+		}
+
+		//マウスパラメータリセット
+		if (GetButton_isTrigger(JC_X))
+		{
+			Mouse_Reset();
 		}
 
 		//動いてないければ移動量の設定
@@ -181,6 +274,11 @@ void Stone_Update(void)
 			{
 				g_throw_start = true;
 			}
+			//ジャイロ回転のリセット
+			else
+			{
+				rot_count = 0.0f;
+			}
 			//移動量がDEAD_ZONE以下で次のターン
 			if (g_stone[i].move <= DEAD_ZONE && g_throw_start)
 			{
@@ -193,7 +291,7 @@ void Stone_Update(void)
 				g_stone[g_player_turn].start_pos = g_stone[g_player_turn].pos;	//スタート位置に今の座標を代入
 				g_stone[g_player_turn].move = 0.0f;								//移動量の初期化
 				g_turn_count++;	//ターン数カウント
-				(g_turn_count < 4) ? g_player_turn = (g_player_turn + 1) % 4 : g_player_turn = Stone_Turn();	//1巡目は1～4Pの順で、それ以降はゴールから遠い順
+				(g_turn_count < 4) ? g_player_turn++ /*= (g_player_turn + 1) % 4*/ : g_player_turn = Stone_Turn();	//1巡目は1～4Pの順で、それ以降はゴールから遠い順
 				g_stone[g_player_turn].is_turn = true;							//プラスされた現在のプレイヤーのターンをtrueに
 				g_throw_start = false;											//スタート用変数をfalse
 				Joycon_Reset();			//スティック回転値リセット
@@ -202,7 +300,7 @@ void Stone_Update(void)
 			}
 			gyro_rotation += rot_count;
 			rot_count *= 0.85f;
-			D3DXMatrixRotationY(&g_stone[i].mtx_rotation, (Joycon_Operator() * D3DX_PI / 180) + gyro_rotation);		//y軸回転
+			D3DXMatrixRotationY(&g_stone[i].mtx_rotation, (Joycon_Operator() * D3DX_PI / 180) + gyro_rotation);	//y軸回転
 		}
 
 		//ストーンの進んだ距離
@@ -225,24 +323,16 @@ void Stone_Update(void)
 //=====================================================
 void Stone_Draw(void)
 {
-	//デバイスのポインタ取得
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
+	//DebugFont_Draw(0, 32 * 15, "Aトリガー = %d", GetButton_isTrigger(JC_A));
+	//DebugFont_Draw(0, 32 * 16, "Yトリガー = %d", GetButton_isTrigger(JC_Y));
+	//DebugFont_Draw(0, 32 * 17, "Xトリガー = %d", GetButton_isTrigger(JC_X));
+	DebugFont_Draw(0, 32 * 17, "Yプレス = %d", GetButton(JC_Y));
 	for (int i = 0; i < PLAYER_MAX_NUM; i++)
 	{
 		DebugFont_Draw(0, 32 * (6 + i), "%dPのゴールまでの距離 = %.02lf", i + 1, g_stone[i].goal_range);
-		DebugFont_Draw(0, 32 * 17, "操作キャラ = %d", Stone_Turn());
 		//DebugFont_Draw(0, 32 * (6 + i), "%dPの進んだ距離 = %.02lf", i + 1, g_stone[i].stone_range);
-		//DebugFont_Draw(0, 32 * (6 + i), "GOAL = %d", g_stone[i].on_goal);
 
-		Fbx_Model_Draw(g_model, g_stone[i].mtx_world, g_stone[i].color);
-
-		////描画設定
-		//pDevice->SetTransform(D3DTS_WORLD, &g_stone[i].mtx_world);
-		//pDevice->SetFVF(FVF_CUBE);						//デバイスに頂点データを渡す
-		//pDevice->SetTexture(0, NULL);					//テクスチャをデバイスに渡す
-		//pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);	//FALSE:ライトOFF TRUE:ライトON
-		//pDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 12, g_stone_vertex, sizeof(StoneVertex));
+		Model_Draw(g_stone[i].model[g_stone[i].type], g_stone[i].mtx_world);
 	}
 }
 

@@ -18,12 +18,13 @@ void Joycon_Init(void)
 //=====================================================
 //ジョイコン操作
 //=====================================================
-int Joycon_Operator(void)
+float Joycon_Operator(void)
 {
 	//スティック操作
 	g_stick_y += GetStick().x / 1000;
 
-	//左回転
+	//デバッグ用回転
+#if (DEBUG) || (_DEBUG)
 	if (Keyboard_IsPress(DIK_LEFTARROW))
 	{
 		g_stick_y -= 1.1f;
@@ -32,6 +33,7 @@ int Joycon_Operator(void)
 	{
 		g_stick_y += 1.1f;
 	}
+#endif	(DEBUG) || (_DEBUG)
 
 	return g_stick_y;
 }

@@ -11,7 +11,7 @@ void Light_Set(void)
 
 	D3DLIGHT9 light = {};	//ライト構造体
 	light.Type = D3DLIGHT_DIRECTIONAL;
-	D3DXVECTOR3 vecDirLight(-1.0f, -1.0f, 0.0f);		//ライトベクトル(単位ベクトルにすること)
+	D3DXVECTOR3 vecDirLight(-1.0f, -1.0f, 0.0f);	//ライトベクトル(単位ベクトルにすること)
 	D3DXVec3Normalize(&vecDirLight, &vecDirLight);	//正規化 (出力, 入力);	
 	light.Direction = vecDirLight;					//ベクトルの代入
 	//ライトカラーの設定

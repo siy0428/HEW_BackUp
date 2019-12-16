@@ -13,7 +13,7 @@
 
 typedef struct TextureDate_tag
 {
-	char filename[FILENAME_MAX];
+	char filename[TEX_FILENAME_MAX];
 	int width;
 	int height;
 	LPDIRECT3DTEXTURE9 pTexture;
