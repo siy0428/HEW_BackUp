@@ -9,6 +9,7 @@ void Sprite_Draw(int texId, float dx, float dy, int alpha);
 void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch);
 void Sprite_Draw(int texId, float dx, float dy, float dw, float dh, int cx, int cy, int cw, int ch);
 void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch, D3DCOLOR color);
+void Sprite_Draw(int w, int h, float dx, float dy, int cx, int cy, int cw, int ch, int alpha);
 void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch, int alpha);
 void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch);
 void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch, float angle, float center_x, float center_y, float zoom);

@@ -47,14 +47,16 @@ void Camera_Init(void)
 //=====================================================
 void Camera_Set(void)
 {
+	int stone_turn = Stone_PlayerTurn();	//現在操作しているプレイヤーの要素数取得
+
 	//デバイスのポインタ取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxRotation[XYZ_MAX];
-	D3DXVECTOR3 At = Stone_GetPos(Stone_PlayerTurn());
+	D3DXVECTOR3 At = Stone_GetPos(stone_turn);
 
 	g_camera.pos = D3DXVECTOR3(0.0f, 5.0f, -10.0f);
 	//注視点回転
-	D3DXMatrixRotationY(&mtxRotation[Y], Joycon_Operator() * D3DX_PI / 180);
+	D3DXMatrixRotationY(&mtxRotation[Y], Stone_Rot(stone_turn));
 	D3DXVec3TransformNormal(&g_camera.pos, &g_camera.pos, &mtxRotation[Y]);
 	g_camera.pos += At;
 

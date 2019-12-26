@@ -27,11 +27,15 @@
 #include "penguin.h"
 #include "OXAllocateHierarchy.h"
 #include "anime_test.h"
+#include "ui_player_turn.h"
+#include "title.h"
+#include "common.h"
+#include "band.h"
 
 //=====================================================
 //グローバル変数
 //=====================================================
-static SCENE g_Scene = SCENE_NONE;
+static SCENE g_Scene = SCENE_TITLE;
 static bool g_TexLoad = true;
 static HWND g_hwnd = NULL;
 //カメラ行列設定
@@ -44,7 +48,6 @@ static D3DXVECTOR3 g_CameraAt = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 //=====================================================
 void Game_Init(HWND hwnd)
 {
-	g_Scene = SCENE_3D;
 	g_hwnd = hwnd;
 	Goal_Init();	//Stoneより先に呼ばないと初回の距離が正確ではない
 	Debug_Init();
@@ -64,6 +67,9 @@ void Game_Init(HWND hwnd)
 	Mesh_Init();
 	GuideLine_Init();
 	Anime_Test_Init();
+	Ui_PlayerTurn_Init();
+	Title_Init();
+	Band_Init();
 	if (g_TexLoad)
 	{
 		if (Texture_Load() > 0)
@@ -94,6 +100,7 @@ void Game_Uninit(void)
 	GuideLine_Uninit();
 	Anime_Test_Uninit();
 	Texture_Destroy();
+	Ui_PlayerTurn_Uninit();
 }
 
 //=====================================================
@@ -103,17 +110,28 @@ void Game_Update(void)
 {
 	//キーボード更新
 	Keyboard_Update();
+	//ジョイコン更新
 	UpdateInput();
+
+	Fade_Update();
 
 	switch (g_Scene)
 	{
-	case SCENE_3D:
+	case SCENE_TITLE:
+		Title_Update();
+		break;
+	case SCENE_TUTORIAL:
+		break;
+	case SCENE_MAIN:
 		Mouse_Update();
 		Stone_Update();
 		Camera_Change();
 		Goal_Update();
-		Result_Update();
 		GuideLine_Update();
+		Ui_PlayerTurn_Update();
+		break;
+	case SCENE_RESULT:
+		Result_Update();
 		break;
 	default:
 		break;
@@ -127,23 +145,28 @@ void Game_Draw(void)
 {
 	switch (g_Scene)
 	{
-	case SCENE_3D:
+	case SCENE_TITLE:
+		Title_Draw();
+		break;
+	case SCENE_TUTORIAL:
+		break;
+	case SCENE_MAIN:
 		//Grid_Draw();
 		Mouse_Draw();
 		Stone_Draw();
 		Goal_Draw();
-		Pow_Gauge_Draw();
+		//Pow_Gauge_Draw();
 		Mesh_Draw();
 		GuideLine_Draw();
-		Result_Draw();
 		Anime_Test_Draw();
-		Score_Draw(500, 500.0f, 0.0f, 8);
-		Draw();
+		Ui_PlayerTurn_Draw();
+		break;
+	case SCENE_RESULT:
+		Result_Draw();
 		break;
 	}
+	Fade_Draw();
 }
-//カメラ情報出力
-//Camera_Debug_Info(g_CameraPosition, g_CameraRotate, g_CameraAt);
 
 //=====================================================
 //シーンの切り替え

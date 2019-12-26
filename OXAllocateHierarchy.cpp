@@ -7,6 +7,7 @@
 #include "OXAllocateHierarchy.h"
 #include "mydirectx.h"
 #include "texture.h"
+#include "input.h"
 
 //=====================================================
 //マクロ定義
@@ -22,10 +23,11 @@ typedef struct
 	std::map<DWORD, D3DXMATRIX> combMatrixMap;
 	OX::AllocateHierarchy allocater;
 	OX::OXD3DXFRAME *pRootFrame = 0;
-	ID3DXAnimationController *controller = 0;
+	LPD3DXANIMATIONCONTROLLER controller;
 	unsigned int tex;
 	D3DXBONECOMBINATION *combs;
 	OX::OXD3DXMESHCONTAINER *cont;
+	LPD3DXANIMATIONSET pAnimeSet[16];
 }ANIME;
 
 //=====================================================
@@ -119,6 +121,12 @@ unsigned int ModelAnime_Init(const char *filename, const char *texname)
 		// スキンメッシュ情報をXファイルから取得
 		D3DXLoadMeshHierarchyFromX(filename, D3DXMESH_MANAGED, pDevice, &g_anime[i].allocater, 0, (D3DXFRAME**)&g_anime[i].pRootFrame, &g_anime[i].controller);
 
+		//アニメーションの数分読み込み
+		for (UINT j = 0; j < g_anime[i].controller->GetNumAnimationSets(); j++)
+		{
+			g_anime[i].controller->GetAnimationSet(j, &g_anime[i].pAnimeSet[j]);
+		}
+
 		g_anime[i].cont = getMeshContainer(g_anime[i].pRootFrame);
 		g_anime[i].combs = (D3DXBONECOMBINATION*)g_anime[i].cont->boneCombinationTable->GetBufferPointer();
 
@@ -126,6 +134,7 @@ unsigned int ModelAnime_Init(const char *filename, const char *texname)
 		setFrameId(g_anime[i].pRootFrame, g_anime[i].cont->pSkinInfo);
 		//テクスチャ生成
 		g_anime[i].tex = Texture_SetLoadFile(texname, 0, 0);
+
 		return i;
 	}
 	return -1;
@@ -146,7 +155,7 @@ void ModelAnime_Uninit(void)
 		g_anime[i].allocater.DestroyFrame(g_anime[i].pRootFrame);
 	}
 }
-
+static int button = 0;
 //=====================================================
 //描画
 //=====================================================
@@ -155,7 +164,19 @@ void ModelAnime_Draw(unsigned int index, float anime_speed, D3DXMATRIX mtxWorld)
 	//デバイスのポインタ取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	if (Keyboard_IsTrigger(DIK_SPACE))
+	{
+		button++;
+		button %= 3;
+	}
+
+	g_anime[index].controller->SetTrackAnimationSet(0, g_anime[index].pAnimeSet[button]);
+	g_anime[index].controller->SetTrackSpeed(0, 1);
+	g_anime[index].controller->SetTrackWeight(0, 0.1f);
+	g_anime[index].controller->SetTrackWeight(1, 1.0f);
+
 	g_anime[index].controller->AdvanceTime(anime_speed, 0);
+
 	updateCombMatrix(g_anime[index].combMatrixMap, g_anime[index].pRootFrame);
 
 	pDevice->SetTexture(0, Texture_GetTexture(g_anime[index].tex));

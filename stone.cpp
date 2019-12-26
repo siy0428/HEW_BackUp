@@ -15,6 +15,8 @@
 #include "result.h"
 #include "model.h"
 #include "OXAllocateHierarchy.h"
+#include "ui_player_turn.h"
+#include "fade.h"
 
 //====================================================
 //マクロ定義
@@ -32,17 +34,9 @@ typedef enum
 	STONE_TYPE_MAX
 }STONE_TYPE;
 
-//====================================================
+//=====================================================
 //構造体宣言
-//====================================================
-typedef struct Stone_Vertex_tag
-{
-	D3DXVECTOR3 position;	//座標
-	D3DCOLOR color;			//色情報
-}StoneVertex;
-#define FVF_CUBE (D3DFVF_XYZ | D3DFVF_DIFFUSE)
-
-//ストーン構造体
+//=====================================================
 typedef struct
 {
 	D3DXMATRIX mtx_world;		//ワールド行列
@@ -56,60 +50,17 @@ typedef struct
 	STONE_TYPE type;
 	int type_index;
 	float move;
+	float rot_move;
 	bool is_turn;
 	float goal_range;
 	float stone_range;
+	int score;
+	int rank;
 }Stone;
 
 //=====================================================
 //グローバル変数
 //=====================================================
-static const StoneVertex g_stone_vertex[] = {						//頂点構造体
-	//正面
-	{D3DXVECTOR3(-0.5f, 0.5f, -0.5f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(0.5f, 0.5f, -0.5f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(0.5f, -0.5f, -0.5f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(0.5f, -0.5f, -0.5f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-0.5f, -0.5f, -0.5f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-0.5f, 0.5f, -0.5f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	//右面
-	{D3DXVECTOR3(0.5f, 0.5f, -0.5f), D3DCOLOR_RGBA(0, 255, 0, 255)},
-	{D3DXVECTOR3(0.5f, 0.5f, 0.5f), D3DCOLOR_RGBA(0, 255, 0, 255)},
-	{D3DXVECTOR3(0.5f, -0.5f, 0.5f), D3DCOLOR_RGBA(0, 255, 0, 255)},
-	{D3DXVECTOR3(0.5f, -0.5f, 0.5f), D3DCOLOR_RGBA(0, 255, 0, 255)},
-	{D3DXVECTOR3(0.5f, -0.5f, -0.5f), D3DCOLOR_RGBA(0, 255, 0, 255)},
-	{D3DXVECTOR3(0.5f, 0.5f, -0.5f), D3DCOLOR_RGBA(0, 255, 0, 255)},
-	//左面
-	{D3DXVECTOR3(-0.5f, 0.5f, 0.5f), D3DCOLOR_RGBA(255, 0, 0, 255)},
-	{D3DXVECTOR3(-0.5f, 0.5f, -0.5f), D3DCOLOR_RGBA(255, 0, 0, 255)},
-	{D3DXVECTOR3(-0.5f, -0.5f, 0.5f), D3DCOLOR_RGBA(255, 0, 0, 255)},
-	{D3DXVECTOR3(-0.5f, -0.5f, 0.5f), D3DCOLOR_RGBA(255, 0, 0, 255)},
-	{D3DXVECTOR3(-0.5f, 0.5f, -0.5f), D3DCOLOR_RGBA(255, 0, 0, 255)},
-	{D3DXVECTOR3(-0.5f, -0.5f, -0.5f), D3DCOLOR_RGBA(255, 0, 0, 255)},
-	//奥面
-	{D3DXVECTOR3(0.5f, 0.5f, 0.5f), D3DCOLOR_RGBA(64, 128, 0, 255)},
-	{D3DXVECTOR3(-0.5f, 0.5f, 0.5f), D3DCOLOR_RGBA(64, 128, 0, 255)},
-	{D3DXVECTOR3(-0.5f, -0.5f, 0.5f), D3DCOLOR_RGBA(64, 128, 0, 255)},
-	{D3DXVECTOR3(-0.5f, -0.5f, 0.5f), D3DCOLOR_RGBA(64, 128, 0, 255)},
-	{D3DXVECTOR3(0.5f, -0.5f, 0.5f), D3DCOLOR_RGBA(64, 128, 0, 255)},
-	{D3DXVECTOR3(0.5f, 0.5f, 0.5f), D3DCOLOR_RGBA(64, 128, 0, 255)},
-	//底面
-	{D3DXVECTOR3(0.5f, -0.5f, 0.5f), D3DCOLOR_RGBA(128, 32, 64, 255)},
-	{D3DXVECTOR3(-0.5f, -0.5f, 0.5f), D3DCOLOR_RGBA(128, 32, 64, 255)},
-	{D3DXVECTOR3(0.5f, -0.5f, -0.5f), D3DCOLOR_RGBA(128, 32, 64, 255)},
-	{D3DXVECTOR3(0.5f, -0.5f, -0.5f), D3DCOLOR_RGBA(128, 32, 64, 255)},
-	{D3DXVECTOR3(-0.5f, -0.5f, 0.5f), D3DCOLOR_RGBA(128, 32, 64, 255)},
-	{D3DXVECTOR3(-0.5f, -0.5f, -0.5f), D3DCOLOR_RGBA(128, 32, 64, 255)},
-	//上面
-	{D3DXVECTOR3(-0.5f, 0.5f, 0.5f), D3DCOLOR_RGBA(255, 255, 0, 255)},
-	{D3DXVECTOR3(0.5f, 0.5f, 0.5f), D3DCOLOR_RGBA(255, 255, 0, 255)},
-	{D3DXVECTOR3(-0.5f, 0.5f, -0.5f), D3DCOLOR_RGBA(255, 255, 0, 255)},
-	{D3DXVECTOR3(-0.5f, 0.5f, -0.5f), D3DCOLOR_RGBA(255, 255, 0, 255)},
-	{D3DXVECTOR3(0.5f, 0.5f, 0.5f), D3DCOLOR_RGBA(255, 255, 0, 255)},
-	{D3DXVECTOR3(0.5f, 0.5f, -0.5f), D3DCOLOR_RGBA(255, 255, 0, 255)}
-
-};
-
 static Stone g_stone[PLAYER_MAX_NUM];
 static int g_player_turn = 0;
 static bool g_throw_start = false;
@@ -165,13 +116,15 @@ void Stone_Init(void)
 	{
 		g_stone[i].pos = D3DXVECTOR3(-5.0f + i * 2.0f, 0.5f, -10.0f);	//座標
 		g_stone[i].start_pos = g_stone[i].pos;
-		D3DXMatrixTranslation(&g_stone[i].mtx_world, g_stone[i].pos.x, g_stone[i].pos.y, g_stone[i].pos.z);		//平行移動
+		D3DXMatrixTranslation(&g_stone[i].mtx_world, g_stone[i].pos.x, g_stone[i].pos.y, g_stone[i].pos.z);	//平行移動
 		g_stone[i].move = 0.0f;			//移動量
+		g_stone[i].rot_move = 0.0f;
 		g_stone[i].is_turn = false;
 		g_stone[i].goal_range = Goal_Range(g_stone[i].pos);
 		g_stone[i].stone_range = 0.0f;
 		g_stone[i].type = STONE_NORMAL;
 		g_stone[i].type_index = g_stone[i].type;
+		g_stone[i].score = 0;
 		if (g_filename[i] != '\0')
 		{
 			g_stone[i].model[STONE_NORMAL] = Model_Load(g_filename[i * 3], g_pathname[i * 3]);			//通常タイプ
@@ -189,6 +142,10 @@ void Stone_Init(void)
 	g_throw_start = false;
 	gyro_rotation = 0.0f;
 	g_turn_count = 0;
+	g_stone[0].score = 2;
+	g_stone[1].score = 2;
+	g_stone[2].score = -3;
+	g_stone[3].score = 2;
 }
 
 //=====================================================
@@ -198,12 +155,22 @@ void Stone_Uninit(void)
 {
 
 }
-
+static int click;
 //=====================================================
 //更新
 //=====================================================
 void Stone_Update(void)
 {
+	if (Keyboard_IsTrigger(DIK_SPACE))
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			Result_SetScore(j, g_stone[j].score);
+		}
+		Result_GetRanking();	//順位ソート
+		Goal_GetWinPlayer(g_player_turn);
+		Fade_InOut(SCENE_RESULT);
+	}
 	//どのプレイヤーのターンか判別
 	for (int i = 0; i < PLAYER_MAX_NUM; i++)
 	{
@@ -211,6 +178,13 @@ void Stone_Update(void)
 		if (!g_stone[i].is_turn)
 		{
 			continue;
+		}
+
+		//プレイヤー表示UIが消えるまで操作不能
+		if (Ui_PlayerTurn_GetType() == UI_FIRST_TURN || Ui_PlayerTurn_GetNextType() == UI_FIRST_TURN ||
+			Ui_PlayerTurn_GetType() == UI_STOP || Ui_PlayerTurn_GetNextType() == UI_STOP)
+		{
+			return;
 		}
 
 		//ストーン切り替え
@@ -249,30 +223,34 @@ void Stone_Update(void)
 		{
 			Mouse_Reset();
 		}
-
+		click = (bool)GetAsyncKeyState(VK_LBUTTON);
 		//動いてないければ移動量の設定
-		if ((GetAsyncKeyState(VK_LBUTTON) || GetButton(JC_X)) && Stone_Range(g_stone[i].pos, g_stone[i].start_pos) <= DEAD_ZONE)
+		if (((bool)GetAsyncKeyState(VK_LBUTTON) || GetButton(JC_X)) && Stone_Range(g_stone[i].pos, g_stone[i].start_pos) <= DEAD_ZONE)
 		{
 			g_stone[i].move = 0.01f * Mouse_GetForce();
 			rot_count = 0.075f * GetGyro().y / 1000;
-			D3DXMatrixRotationY(&g_stone[i].mtx_rotation, Joycon_Operator() * D3DX_PI / 180);		//y軸回転
 			Pow_Gauge_Update();
+			Ui_PlayerTurn_Create(UI_RANGE);
 		}
 		//ストーンの移動
 		else
 		{
+			g_stone[i].rot_move = Joycon_Operator() * D3DX_PI / 180;	//回転値
 			g_stone[i].move *= 0.98f;		//摩擦係数
 			D3DXMatrixTranslation(&g_stone[i].mtx_move, 0, 0, g_stone[i].move);
 			g_stone[i].goal_range = Goal_Range(g_stone[i].pos);	//ゴールまでの距離計算
 			//投げていないときの処理
 			if (!g_throw_start)
 			{
+				Ui_PlayerTurn_Create(UI_DIR_CHANGE);
 				Pow_Gauge_Update();
 			}
 			//動いているとき
 			if (g_stone[i].move >= DEAD_ZONE)
 			{
+				//投げるときUI
 				g_throw_start = true;
+				Ui_PlayerTurn_Create(UI_RANGE);
 			}
 			//ジャイロ回転のリセット
 			else
@@ -285,22 +263,20 @@ void Stone_Update(void)
 				//ゴール判定
 				if (Goal_Flag(g_stone[i].goal_range, g_stone[i].move))
 				{
-					Result_GetWinPlayer(g_player_turn);
+					for (int j = 0; j < 4; j++)
+					{
+						Result_SetScore(j, g_stone[i].score);
+					}
+					Result_GetRanking();	//順位ソート
+					Goal_GetWinPlayer(g_player_turn);
+					Fade_InOut(SCENE_RESULT);
+					return;
 				}
-				g_stone[g_player_turn].is_turn = false;							//現在操作しているストーンのターンをfalse
-				g_stone[g_player_turn].start_pos = g_stone[g_player_turn].pos;	//スタート位置に今の座標を代入
-				g_stone[g_player_turn].move = 0.0f;								//移動量の初期化
-				g_turn_count++;	//ターン数カウント
-				(g_turn_count < 4) ? g_player_turn++ /*= (g_player_turn + 1) % 4*/ : g_player_turn = Stone_Turn();	//1巡目は1～4Pの順で、それ以降はゴールから遠い順
-				g_stone[g_player_turn].is_turn = true;							//プラスされた現在のプレイヤーのターンをtrueに
-				g_throw_start = false;											//スタート用変数をfalse
-				Joycon_Reset();			//スティック回転値リセット
-				rot_count = 0.0f;		//回転量リセット
-				gyro_rotation = 0.0f;	//回転値リセット
+				Ui_PlayerTurn_Create(UI_STOP);
 			}
 			gyro_rotation += rot_count;
 			rot_count *= 0.85f;
-			D3DXMatrixRotationY(&g_stone[i].mtx_rotation, (Joycon_Operator() * D3DX_PI / 180) + gyro_rotation);	//y軸回転
+			D3DXMatrixRotationY(&g_stone[i].mtx_rotation, g_stone[i].rot_move + gyro_rotation);	//y軸回転
 		}
 
 		//ストーンの進んだ距離
@@ -309,6 +285,7 @@ void Stone_Update(void)
 		//ワールド座標変換
 		D3DXMatrixIdentity(&g_stone[i].mtx_world);	//単位行列を作る
 		D3DXMatrixTranslation(&g_stone[i].mtx_world, g_stone[i].pos.x, g_stone[i].pos.y, g_stone[i].pos.z);		//平行移動
+
 		g_stone[i].mtx_world = g_stone[i].mtx_move * g_stone[i].mtx_rotation * g_stone[i].mtx_world;
 
 		//行列合成した状態での座標取得
@@ -323,10 +300,7 @@ void Stone_Update(void)
 //=====================================================
 void Stone_Draw(void)
 {
-	//DebugFont_Draw(0, 32 * 15, "Aトリガー = %d", GetButton_isTrigger(JC_A));
-	//DebugFont_Draw(0, 32 * 16, "Yトリガー = %d", GetButton_isTrigger(JC_Y));
-	//DebugFont_Draw(0, 32 * 17, "Xトリガー = %d", GetButton_isTrigger(JC_X));
-	DebugFont_Draw(0, 32 * 17, "Yプレス = %d", GetButton(JC_Y));
+	DebugFont_Draw(0, 32 * 20, "クリック = %d", click);
 	for (int i = 0; i < PLAYER_MAX_NUM; i++)
 	{
 		DebugFont_Draw(0, 32 * (6 + i), "%dPのゴールまでの距離 = %.02lf", i + 1, g_stone[i].goal_range);
@@ -357,8 +331,15 @@ int Stone_PlayerTurn(void)
 //=====================================================
 float Stone_Range(D3DXVECTOR3 pos, D3DXVECTOR3 start_pos)
 {
-
 	return (float)sqrt((pos.x - start_pos.x) * (pos.x - start_pos.x) + (pos.y - start_pos.y) * (pos.y - start_pos.y) + (pos.z - start_pos.z) * (pos.z - start_pos.z));
+}
+
+//=====================================================
+//ストーンの進んだ距離の取得
+//=====================================================
+float Stone_GetRange(int index)
+{
+	return g_stone[index].stone_range;
 }
 
 //=====================================================
@@ -390,4 +371,38 @@ int Stone_Turn(void)
 		}
 	}
 	return index;
+}
+
+//=====================================================
+//回転量取得
+//=====================================================
+float Stone_Rot(int index)
+{
+	return g_stone[index].rot_move;
+}
+
+//=====================================================
+//次のストーンの設定
+//=====================================================
+void Stone_SetTurn(void)
+{
+	g_stone[g_player_turn].is_turn = false;									//現在操作しているストーンのターンをfalse
+	g_stone[g_player_turn].start_pos = g_stone[g_player_turn].pos;			//スタート位置に今の座標を代入
+	g_stone[g_player_turn].move = 0.0f;										//移動量の初期化
+	g_stone[g_player_turn].score++;											//スコアの加算
+	g_turn_count++;			//ターン数カウント
+	(g_turn_count < 4) ? g_player_turn++ : g_player_turn = Stone_Turn();	//1巡目は1～4Pの順で、それ以降はゴールから遠い順
+	g_stone[g_player_turn].is_turn = true;									//プラスされた現在のプレイヤーのターンをtrueに
+	g_throw_start = false;													//スタート用変数をfalse
+	Joycon_Reset();			//スティック回転値リセット
+	rot_count = 0.0f;		//回転量リセット
+	gyro_rotation = 0.0f;	//回転値リセット
+}
+
+//=====================================================
+//スコアの取得
+//=====================================================
+int Stone_GetScore(int index)
+{
+	return g_stone[index].score;
 }

@@ -44,14 +44,7 @@ void Sprite_Draw(int texId, float dx, float dy)
 
 	pDevice->SetFVF(FVF_VERTEX2D);			//デバイスに頂点データを渡す
 	pDevice->SetTexture(0, Texture_GetTexture(texId));	//テクスチャをデバイスに渡す
-	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(Vertex3d));//図形の描画方(塗りつぶし), 図形の数, 頂点データの先頭アドレス, 頂点データのサイズ
-																		  //D3DPT_TRIANGLELISTにすると三角形の描画
-																		  //D3DPT_POINTLISTにすると点の描画（点1つで図形1つ分とみなす）
-																		  //D3DPT_LINELISTにすると2頂点で1線の描画
-																		  //D3DPT_LINESTRIPにすると連続して線を描画
-																		  //D3DPT_TRIANGLESTRIPにすると四角形を描画(三角形の数を第二引数に入れる)
-																		  //D3DPT_TRIANGLEFAN扇形
-																		  //円描画
+	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(Vertex3d));
 }
 
 //====================================================
@@ -74,14 +67,7 @@ void Sprite_Draw(int texId, float dx, float dy, int alpha)
 	};
 	pDevice->SetFVF(FVF_VERTEX2D);			//デバイスに頂点データを渡す
 	pDevice->SetTexture(0, Texture_GetTexture(texId));	//テクスチャをデバイスに渡す
-	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(Vertex3d));//図形の描画方(塗りつぶし), 図形の数, 頂点データの先頭アドレス, 頂点データのサイズ
-																		  //D3DPT_TRIANGLELISTにすると三角形の描画
-																		  //D3DPT_POINTLISTにすると点の描画（点1つで図形1つ分とみなす）
-																		  //D3DPT_LINELISTにすると2頂点で1線の描画
-																		  //D3DPT_LINESTRIPにすると連続して線を描画
-																		  //D3DPT_TRIANGLESTRIPにすると四角形を描画(三角形の数を第二引数に入れる)
-																		  //D3DPT_TRIANGLEFAN扇形
-																		  //円描画
+	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(Vertex3d));
 }
 
 //====================================================
@@ -109,14 +95,7 @@ void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch)
 	};
 	pDevice->SetFVF(FVF_VERTEX2D);			//デバイスに頂点データを渡す
 	pDevice->SetTexture(0, Texture_GetTexture(texId));	//テクスチャをデバイスに渡す
-	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(Vertex3d));//図形の描画方(塗りつぶし), 図形の数, 頂点データの先頭アドレス, 頂点データのサイズ
-																		  //D3DPT_TRIANGLELISTにすると三角形の描画
-																		  //D3DPT_POINTLISTにすると点の描画（点1つで図形1つ分とみなす）
-																		  //D3DPT_LINELISTにすると2頂点で1線の描画
-																		  //D3DPT_LINESTRIPにすると連続して線を描画
-																		  //D3DPT_TRIANGLESTRIPにすると四角形を描画(三角形の数を第二引数に入れる)
-																		  //D3DPT_TRIANGLEFAN扇形
-																		  //円描画
+	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(Vertex3d));
 }
 
 //====================================================
@@ -184,6 +163,31 @@ void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch, 
 }
 
 //====================================================
+//ポリゴン描画(UV値)(テクスチャなし)
+//====================================================
+void Sprite_Draw(int w, int h, float dx, float dy, int cx, int cy, int cw, int ch, int alpha)
+{
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	float u0 = cx / (float)w;
+	float v0 = cy / (float)h;
+	float u1 = (cx + cw) / (float)w;
+	float v1 = (cy + ch) / (float)h;
+
+	Vertex3d v[32] =
+	{
+		{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),D3DCOLOR_RGBA(0, 0, 0, alpha), D3DXVECTOR2(u0, v0) },
+	{ D3DXVECTOR4(dx + cw - 0.5f, dy - 0.5f, 0.0f, 1.0f),D3DCOLOR_RGBA(0, 0, 0, alpha), D3DXVECTOR2(u1, v0) },
+	{ D3DXVECTOR4(dx - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),D3DCOLOR_RGBA(0, 0, 0, alpha), D3DXVECTOR2(u0, v1) },
+	{ D3DXVECTOR4(dx + cw - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),D3DCOLOR_RGBA(0, 0, 0, alpha), D3DXVECTOR2(u1,v1) },
+	};
+	pDevice->SetFVF(FVF_VERTEX2D);	//デバイスに頂点データを渡す
+	pDevice->SetTexture(0, NULL);	//テクスチャをデバイスに渡す
+	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(Vertex3d));
+}
+
+
+//====================================================
 //ポリゴン描画(UV値)(透明度設定)
 //====================================================
 void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch, int alpha)
@@ -208,14 +212,7 @@ void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch, 
 	};
 	pDevice->SetFVF(FVF_VERTEX2D);			//デバイスに頂点データを渡す
 	pDevice->SetTexture(0, Texture_GetTexture(texId));	//テクスチャをデバイスに渡す
-	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(Vertex3d));//図形の描画方(塗りつぶし), 図形の数, 頂点データの先頭アドレス, 頂点データのサイズ
-																		  //D3DPT_TRIANGLELISTにすると三角形の描画
-																		  //D3DPT_POINTLISTにすると点の描画（点1つで図形1つ分とみなす）
-																		  //D3DPT_LINELISTにすると2頂点で1線の描画
-																		  //D3DPT_LINESTRIPにすると連続して線を描画
-																		  //D3DPT_TRIANGLESTRIPにすると四角形を描画(三角形の数を第二引数に入れる)
-																		  //D3DPT_TRIANGLEFAN扇形
-																		  //円描画
+	pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(Vertex3d));
 }
 
 //====================================================

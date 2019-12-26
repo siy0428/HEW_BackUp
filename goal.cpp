@@ -6,6 +6,9 @@
 #include "joycon.h"
 #include "mouse.h"
 #include "camera.h"
+#include "stone.h"
+#include "texture.h"
+#include "sprite.h"
 
 //====================================================
 //マクロ定義
@@ -73,6 +76,9 @@ static const GoalVertex g_goal_vertex[] = {						//頂点構造体
 };
 static D3DXVECTOR3 g_pos(0.0f, 0.5f, 0.0f);
 static D3DXMATRIX g_mtxWorld;
+static unsigned int g_tex[PLAYER_MAX_NUM] = { 0 };
+static int g_win_player = -1;
+static bool g_goal_flag;
 
 //=====================================================
 //初期化
@@ -80,6 +86,11 @@ static D3DXMATRIX g_mtxWorld;
 void Goal_Init(void)
 {
 	g_pos = D3DXVECTOR3(0.0f, 0.5f, 30.0f);
+	g_tex[0] = Texture_SetLoadFile("Texture\\1p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_tex[1] = Texture_SetLoadFile("Texture\\2p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_tex[2] = Texture_SetLoadFile("Texture\\3p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_tex[3] = Texture_SetLoadFile("Texture\\4p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_goal_flag = false;
 }
 
 //=====================================================
@@ -108,6 +119,11 @@ void Goal_Draw(void)
 	//デバイスのポインタ取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	if (g_goal_flag)
+	{
+		Sprite_Draw(g_tex[g_win_player], 0, 0);
+	}
+
 	//描画設定
 	pDevice->SetTransform(D3DTS_WORLD, &g_mtxWorld);
 	pDevice->SetFVF(FVF_CUBE);						//デバイスに頂点データを渡す
@@ -129,10 +145,22 @@ float Goal_Range(D3DXVECTOR3 pos)
 //=====================================================
 bool Goal_Flag(float goal_range, float move)
 {
-	//ゴールしていた場合true
-	if (goal_range <= GOAL_RANGE && move <= DEAD_ZONE)
-	{
-		return true;
-	}
-	return false;
+	////ゴールしていた場合true
+	//if (goal_range <= GOAL_RANGE && move <= DEAD_ZONE)
+	//{
+	//	return true;
+	//}
+	//return false;
+
+	g_goal_flag = (goal_range <= GOAL_RANGE && move <= DEAD_ZONE) ? true : false;
+
+	return g_goal_flag;
+}
+
+//=====================================================
+//勝利時のプレイヤーの要素数取得
+//=====================================================
+void Goal_GetWinPlayer(int num)
+{
+	g_win_player = num;
 }

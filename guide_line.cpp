@@ -58,15 +58,17 @@ void GuideLine_Uninit(void)
 //====================================================
 void GuideLine_Update(void)
 {
+	int stone_turn = Stone_PlayerTurn();	//現在操作しているプレイヤーの要素数取得
+
 	//ストーンの座標取得
-	g_pos = Stone_GetPos(Stone_PlayerTurn());
+	g_pos = Stone_GetPos(stone_turn);
 
 	D3DXMatrixIdentity(&g_mtxWorld);
 	D3DXMatrixTranslation(&g_mtxTrans[0], g_pos.x, g_pos.y, g_pos.z);
 	D3DXMatrixTranslation(&g_mtxTrans[1], -0.2f, 1.0f, 3.0f);
 	D3DXMatrixScaling(&g_mtxScaling, 0.015f, 0.015f, 1.0f);
 	D3DXMatrixRotationX(&g_mtxRotate[0], 90 * D3DX_PI / 180);
-	D3DXMatrixRotationY(&g_mtxRotate[1], Joycon_Operator() * D3DX_PI / 180);
+	D3DXMatrixRotationY(&g_mtxRotate[1], Stone_Rot(stone_turn));
 
 	g_mtxWorld = g_mtxScaling * g_mtxRotate[0] * g_mtxTrans[1]* g_mtxRotate[1] * g_mtxTrans[0];
 }
@@ -80,8 +82,8 @@ void GuideLine_Draw(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);	//FALSE:ライトOFF TRUE:ライトON
 
-	//ストーンが動いていなければガイドラインを描画しない
-	if (Stone_Move(Stone_PlayerTurn()))
+	//ストーンが動いていなければガイドラインを描画する
+	if (Stone_GetRange(Stone_PlayerTurn()) >= 0.001f)
 	{
 		return;
 	}

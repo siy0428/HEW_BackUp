@@ -5,6 +5,7 @@ void Result_Init(void);
 void Result_Uninit(void);
 void Result_Update(void);
 void Result_Draw(void);
-void Result_GetWinPlayer(int num);
+void Result_SetScore(int index, int score);
+void Result_GetRanking(void);
 
 #endif

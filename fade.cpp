@@ -11,7 +11,6 @@
 //=====================================================
 //ÉOÉçÅ[ÉoÉãïœêî
 //=====================================================
-static unsigned int g_Tex;
 static int g_fade = 0;
 static bool g_isUse = false;
 static int g_incre = FADE_INCRE;
@@ -23,7 +22,6 @@ static bool g_half = false;
 //=====================================================
 void Fade_init(void)
 {
-	g_Tex = Texture_SetLoadFile("Texture\\black.jpeg", SCREEN_WIDTH, SCREEN_HEIGHT);
 	g_fade = FADE_INCRE;
 	g_isUse = false;
 	g_incre = FADE_INCRE;
@@ -84,7 +82,7 @@ void Fade_Draw(void)
 {
 	if (g_isUse)
 	{
-		Sprite_Draw(g_Tex, 0, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, g_fade);
+		Sprite_Draw(SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, g_fade);
 	}
 }
 

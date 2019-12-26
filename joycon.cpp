@@ -3,6 +3,11 @@
 #include "JoyInput.h"
 
 //=====================================================
+//マクロ定義
+//=====================================================
+#define STICK_SPEED (1.0f)
+
+//=====================================================
 //グローバル変数
 //=====================================================
 static float g_stick_y = 0;
@@ -21,17 +26,17 @@ void Joycon_Init(void)
 float Joycon_Operator(void)
 {
 	//スティック操作
-	g_stick_y += GetStick().x / 1000;
+	g_stick_y += GetStick().x / 500;
 
 	//デバッグ用回転
 #if (DEBUG) || (_DEBUG)
 	if (Keyboard_IsPress(DIK_LEFTARROW))
 	{
-		g_stick_y -= 1.1f;
+		g_stick_y -= STICK_SPEED;
 	}
 	else if (Keyboard_IsPress(DIK_RIGHTARROW))
 	{
-		g_stick_y += 1.1f;
+		g_stick_y += STICK_SPEED;
 	}
 #endif	(DEBUG) || (_DEBUG)
 
