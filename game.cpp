@@ -31,17 +31,19 @@
 #include "title.h"
 #include "common.h"
 #include "band.h"
+#include "tutorial.h"
+#include "course_camera.h"
+#include "white_bear.h"
+#include "save_load.h"
+#include "stage.h"
 
 //=====================================================
 //グローバル変数
 //=====================================================
-static SCENE g_Scene = SCENE_TITLE;
+//static SCENE g_Scene = SCENE_TITLE;
+static SCENE g_Scene = SCENE_MAIN;
 static bool g_TexLoad = true;
 static HWND g_hwnd = NULL;
-//カメラ行列設定
-static D3DXVECTOR3 g_CameraRotate = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		//45, 0, 0
-static D3DXVECTOR3 g_CameraPosition = D3DXVECTOR3(0.0f, 10.0f, -10.0f);
-static D3DXVECTOR3 g_CameraAt = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 //=====================================================
 //初期化
@@ -66,10 +68,16 @@ void Game_Init(HWND hwnd)
 	Score_Init();
 	Mesh_Init();
 	GuideLine_Init();
-	Anime_Test_Init();
 	Ui_PlayerTurn_Init();
 	Title_Init();
 	Band_Init();
+	Tutorial_Init();
+	Course_Camera_Init();
+	Penguin_Init();
+	WhiteBear_Init();
+	LoadStageDate();
+	Stage_Init();
+
 	if (g_TexLoad)
 	{
 		if (Texture_Load() > 0)
@@ -98,9 +106,11 @@ void Game_Uninit(void)
 	Result_Uninit();
 	Mesh_Uninit();
 	GuideLine_Uninit();
-	Anime_Test_Uninit();
 	Texture_Destroy();
 	Ui_PlayerTurn_Uninit();
+	Tutorial_Uninit();
+	Course_Camera_Uninit();
+	ModelAnime_Uninit();
 }
 
 //=====================================================
@@ -121,6 +131,12 @@ void Game_Update(void)
 		Title_Update();
 		break;
 	case SCENE_TUTORIAL:
+		Tutorial_Update();
+		break;
+	case SCENE_CAMERA:
+		Course_Camera_Update();
+		Penguin_Update();
+		Goal_Update();
 		break;
 	case SCENE_MAIN:
 		Mouse_Update();
@@ -129,6 +145,8 @@ void Game_Update(void)
 		Goal_Update();
 		GuideLine_Update();
 		Ui_PlayerTurn_Update();
+		Penguin_Update();
+		WhiteBear_Update();
 		break;
 	case SCENE_RESULT:
 		Result_Update();
@@ -149,17 +167,26 @@ void Game_Draw(void)
 		Title_Draw();
 		break;
 	case SCENE_TUTORIAL:
+		Tutorial_Draw();
+		break;
+	case SCENE_CAMERA:
+		Course_Camera_Draw();
+		Mesh_Draw();
+		Penguin_Draw();
+		Goal_Draw();
 		break;
 	case SCENE_MAIN:
 		//Grid_Draw();
 		Mouse_Draw();
 		Stone_Draw();
 		Goal_Draw();
-		//Pow_Gauge_Draw();
+		Pow_Gauge_Draw();
 		Mesh_Draw();
 		GuideLine_Draw();
-		Anime_Test_Draw();
 		Ui_PlayerTurn_Draw();
+		Penguin_Draw();
+		WhiteBear_Draw();
+		//Stage_Draw();
 		break;
 	case SCENE_RESULT:
 		Result_Draw();

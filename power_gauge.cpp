@@ -55,7 +55,7 @@ void Pow_Gauge_Draw(void)
 	int height2 = Texture_GetHeight(g_tex[1]);
 
 	//ÉQÅ[ÉWï`âÊ
-	Sprite_Draw(NULL, SCREEN_WIDTH / 25, SCREEN_HEIGHT / 6, 0, 0, width2, height2, D3DCOLOR_RGBA(0, 0, 0, 255));
+	Sprite_Draw(width, height, SCREEN_WIDTH / 25, SCREEN_HEIGHT / 6, 0, 0, width2, height2, D3DCOLOR_RGBA(0, 0, 0, 255));
 	Sprite_Draw(g_tex[0], (float)SCREEN_WIDTH / 25, (float)(SCREEN_HEIGHT / 6 + height) - height * g_gauge / 100 + FACTOR, (float)width, (float)height * g_gauge / 100, 0, 0, width, height);
 	Sprite_Draw(g_tex[1], (float)SCREEN_WIDTH / 25, (float)SCREEN_HEIGHT / 6);
 }

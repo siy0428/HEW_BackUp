@@ -32,7 +32,7 @@ void Title_Update(void)
 {
 	if (Keyboard_IsTrigger(DIK_SPACE))
 	{
-		Fade_InOut(SCENE_MAIN);
+		Fade_InOut(SCENE_TUTORIAL);
 	}
 }
 

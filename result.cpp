@@ -41,7 +41,6 @@ void Result_Update(void)
 {
 	if (Keyboard_IsTrigger(DIK_SPACE))
 	{
-		Game_Init(Game_GetHwnd());
 		Fade_InOut(SCENE_TITLE);
 	}
 }

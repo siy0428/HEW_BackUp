@@ -71,6 +71,11 @@ void Fade_Update(void)
 		{
 			g_incre *= -1;
 			g_isUse = false;
+			//ƒ^ƒCƒgƒ‹‚É–ß‚Á‚½‚Æ‚«‚É‰Šú‰»
+			if (g_scene == SCENE_TITLE)
+			{
+				Game_Init(Game_GetHwnd());
+			}
 		}
 	}
 }

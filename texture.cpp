@@ -10,6 +10,7 @@
 #include "common.h"
 #include "mydirectx.h"
 #include "texture.h"
+#include <string.h>
 
 typedef struct TextureDate_tag
 {

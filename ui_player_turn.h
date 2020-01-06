@@ -11,7 +11,7 @@ typedef enum
 	UI_RANGE,
 	UI_STOP,
 	UI_MAX,
-	UI_NONE,
+	UI_NONE
 }UI_STATE;
 
 void Ui_PlayerTurn_Init(void);
@@ -21,6 +21,6 @@ void Ui_PlayerTurn_Draw(void);
 void Ui_PlayerTurn_Create(UI_STATE type);
 UI_STATE Ui_PlayerTurn_GetType(void);
 UI_STATE Ui_PlayerTurn_GetNextType(void);
-bool UI_Player_Turn_Stop(void);
+void Ui_PlayerTurn_StoneChange(bool right);
 
 #endif

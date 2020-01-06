@@ -14,7 +14,7 @@ void Texture_Destroy(void);												//テクスチャをすべて解放
 int Texture_GetWidth(int id);											//(戻り値)テクスチャの幅 テクスチャの予約番号
 int Texture_GetHeight(int id);											//(戻り値)テクスチャの高さ テクスチャの予約番号
 
-#define TEXTUREDATA_MAX (64)	//テクスチャの最大数
+#define TEXTUREDATA_MAX (64)		//テクスチャの最大数
 #define TEX_FILENAME_MAX (128)		//ファイル名の最大文字数
 
 #endif

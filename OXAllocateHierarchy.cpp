@@ -155,25 +155,23 @@ void ModelAnime_Uninit(void)
 		g_anime[i].allocater.DestroyFrame(g_anime[i].pRootFrame);
 	}
 }
-static int button = 0;
+static int button;
+
 //=====================================================
 //描画
 //=====================================================
-void ModelAnime_Draw(unsigned int index, float anime_speed, D3DXMATRIX mtxWorld)
+void ModelAnime_Draw(unsigned int index, float anime_speed, D3DXMATRIX mtxWorld, int anime_type)
 {
 	//デバイスのポインタ取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	if (Keyboard_IsTrigger(DIK_SPACE))
+	if (Keyboard_IsTrigger(DIK_1))
 	{
 		button++;
 		button %= 3;
 	}
-
 	g_anime[index].controller->SetTrackAnimationSet(0, g_anime[index].pAnimeSet[button]);
 	g_anime[index].controller->SetTrackSpeed(0, 1);
-	g_anime[index].controller->SetTrackWeight(0, 0.1f);
-	g_anime[index].controller->SetTrackWeight(1, 1.0f);
 
 	g_anime[index].controller->AdvanceTime(anime_speed, 0);
 

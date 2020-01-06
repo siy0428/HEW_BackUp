@@ -1,7 +1,8 @@
 #include "texture.h"
 #include "sprite.h"
-#include <d3dx9.h>
 #include "common.h"
+#include "fade.h"
+#include "input.h"
 
 //=====================================================
 //グローバル変数
@@ -11,15 +12,15 @@ static unsigned int g_tex;
 //=====================================================
 //初期化
 //=====================================================
-void Band_Init(void)
+void Tutorial_Init(void)
 {
-	g_tex = Texture_SetLoadFile("Texture\\band.png", SCREEN_WIDTH, SCREEN_HEIGHT / 2);
+	g_tex = Texture_SetLoadFile("Texture\\tutorial.png", 1280, 720);
 }
 
 //=====================================================
 //終了
 //=====================================================
-void Band_Uninit(void)
+void Tutorial_Uninit(void)
 {
 
 }
@@ -27,15 +28,18 @@ void Band_Uninit(void)
 //=====================================================
 //更新
 //=====================================================
-void Band_Update(void)
+void Tutorial_Update(void)
 {
-
+	if (Keyboard_IsTrigger(DIK_SPACE))
+	{
+		Fade_InOut(SCENE_CAMERA);
+	}
 }
 
 //=====================================================
 //描画
 //=====================================================
-void Band_Draw(D3DXVECTOR3 pos)
+void Tutorial_Draw(void)
 {
-	Sprite_Draw(g_tex, pos.x, pos.y);
+	Sprite_Draw(g_tex, 0, 0);
 }

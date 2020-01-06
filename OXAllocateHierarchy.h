@@ -5,24 +5,7 @@
 
 unsigned int ModelAnime_Init(const char *filename, const char *texname);
 void ModelAnime_Uninit(void);
-void ModelAnime_Draw(unsigned int index, float anime_speed, D3DXMATRIX mtxWorld);
-
-interface IHighLevelAnimController
-{
-public:
-	// アニメーションコントローラを設定
-	bool SetAnimationController(ID3DXAnimationController *pAnimCont);
-	// アニメーションコントローラを取得
-	bool GetAnimationController(ID3DXAnimationController **ppAnimCont);
-	// ループ時間を設定
-	bool SetLoopTime(UINT animID, FLOAT time);
-	// 動作開始にかかる時間を設定
-	bool SetShiftTime(UINT animID, FLOAT interval);
-	// アニメーションを切り替え
-	bool ChangeAnimation(UINT animID);
-	// アニメーションを更新
-	bool AdvanceTime(FLOAT time);
-};
+void ModelAnime_Draw(unsigned int index, float anime_speed, D3DXMATRIX mtxWorld, int anime_type);
 
 namespace OX {
 	struct OXD3DXFRAME : public D3DXFRAME {

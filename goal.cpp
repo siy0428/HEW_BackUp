@@ -164,3 +164,14 @@ void Goal_GetWinPlayer(int num)
 {
 	g_win_player = num;
 }
+
+//=====================================================
+//ステージエディタのデータ取得
+//=====================================================
+void Goal_Set(D3DXMATRIX mtxWorld)
+{
+	g_mtxWorld = mtxWorld;
+	g_pos.x = mtxWorld._41;
+	g_pos.y = mtxWorld._42;
+	g_pos.z = mtxWorld._43;
+}

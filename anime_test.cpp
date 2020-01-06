@@ -23,7 +23,7 @@ void Anime_Test_Init(void)
 //=====================================================
 void Anime_Test_Uninit(void)
 {
-	ModelAnime_Uninit();
+	
 }
 
 //=====================================================
@@ -40,7 +40,7 @@ void Anime_Test_Draw(void)
 	D3DXMATRIX mtxWorld;
 	pos += D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	D3DXMatrixTranslation(&mtxWorld, pos.x, pos.y, pos.z);
-	ModelAnime_Draw(g_anime_id[0], 0.00125f, mtxWorld);
+	ModelAnime_Draw(g_anime_id[0], 0.00125f, mtxWorld, 2);
 	D3DXMatrixTranslation(&mtxWorld, pos.x - 10.0f, pos.y, pos.z / 2);
-	ModelAnime_Draw(g_anime_id[1], 0.0001f, mtxWorld);
+	ModelAnime_Draw(g_anime_id[1], 0.0001f, mtxWorld, 0);
 }

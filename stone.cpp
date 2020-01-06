@@ -17,6 +17,7 @@
 #include "OXAllocateHierarchy.h"
 #include "ui_player_turn.h"
 #include "fade.h"
+#include "penguin.h"
 
 //====================================================
 //マクロ定義
@@ -45,7 +46,6 @@ typedef struct
 	D3DXMATRIX mtx_move;		//移動量
 	D3DXVECTOR3 pos = { 0.0f, 0.5f, 0.0f };				//位置座標
 	D3DXVECTOR3 start_pos = { 0.0f, 0.5f, 0.0f };		//1F前の位置座標
-	D3DXCOLOR color = { 1.0f, 1.0f, 1.0f, 1.0f };		//ストーンの色情報
 	unsigned int model[STONE_TYPE_MAX];
 	STONE_TYPE type;
 	int type_index;
@@ -132,20 +132,11 @@ void Stone_Init(void)
 			g_stone[i].model[STONE_FLOAT] = Model_Load(g_filename[2 + i * 3], g_pathname[2 + i * 3]);	//浮遊タイプ
 		}
 	}
-
 	g_stone[0].is_turn = true;		//最初のストーンのターン設定
-	g_stone[0].color = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);	//1Pマテリアルカラー
-	g_stone[1].color = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);	//2Pマテリアルカラー
-	g_stone[2].color = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);	//3Pマテリアルカラー
-	g_stone[3].color = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);	//4Pマテリアルカラー
 	g_player_turn = 0;// Stone_Turn();
 	g_throw_start = false;
 	gyro_rotation = 0.0f;
 	g_turn_count = 0;
-	g_stone[0].score = 2;
-	g_stone[1].score = 2;
-	g_stone[2].score = -3;
-	g_stone[3].score = 2;
 }
 
 //=====================================================
@@ -161,6 +152,8 @@ static int click;
 //=====================================================
 void Stone_Update(void)
 {
+	//デバッグ用シーン切り替え
+#if (DEBUG) || (_DEBUG)
 	if (Keyboard_IsTrigger(DIK_SPACE))
 	{
 		for (int j = 0; j < 4; j++)
@@ -171,6 +164,7 @@ void Stone_Update(void)
 		Goal_GetWinPlayer(g_player_turn);
 		Fade_InOut(SCENE_RESULT);
 	}
+#endif
 	//どのプレイヤーのターンか判別
 	for (int i = 0; i < PLAYER_MAX_NUM; i++)
 	{
@@ -180,7 +174,7 @@ void Stone_Update(void)
 			continue;
 		}
 
-		//プレイヤー表示UIが消えるまで操作不能
+		//UIが消えるまで操作不能
 		if (Ui_PlayerTurn_GetType() == UI_FIRST_TURN || Ui_PlayerTurn_GetNextType() == UI_FIRST_TURN ||
 			Ui_PlayerTurn_GetType() == UI_STOP || Ui_PlayerTurn_GetNextType() == UI_STOP)
 		{
@@ -204,18 +198,20 @@ void Stone_Update(void)
 		}
 
 		//ストーン切り替え(左)
-		if (GetButton_isTrigger(JC_Y) && !Stone_Move(i))
+		if (GetButton_isTrigger(JC_Y) && !Stone_Move(i) && !Penguin_OnStone(i))
 		{
 			g_stone[i].type_index = (g_stone[i].type_index + 1) % 3;
+			Ui_PlayerTurn_StoneChange(false);
 		}
 		//ストーン切り替え(右)
-		if (GetButton_isTrigger(JC_A) && !Stone_Move(i))
+		if (GetButton_isTrigger(JC_A) && !Stone_Move(i) && !Penguin_OnStone(i))
 		{
 			g_stone[i].type_index--;
 			if (g_stone[i].type_index < 0)
 			{
 				g_stone[i].type_index = STONE_TYPE_MAX - 1;
 			}
+			Ui_PlayerTurn_StoneChange(true);
 		}
 
 		//マウスパラメータリセット
