@@ -1,5 +1,3 @@
-#include <d3dx9.h>
-#include "mydirectx.h"
 #include "common.h"
 #include "input.h"
 #include "debug_font.h"
@@ -18,11 +16,12 @@ static D3DXVECTOR3 g_vecRight(0.0f, 0.0f, 0.0f);
 static D3DXVECTOR3 g_vecUp(0.0f, 0.0f, 0.0f);
 static D3DXVECTOR3 g_Pos(0.0f, 0.0f, 0.0f);
 static float g_moveSpd = 0.0f;
-static Float3 g_rotSpd = { 0.0f, 0.0f, 0.0f };
+static D3DXVECTOR3 g_rotSpd = { 0.0f, 0.0f, 0.0f };
 static float g_Fov = 0.0f;
 static D3DXVECTOR3 g_Move(0.0f, 0.0f, 0.0f);
 D3DXVECTOR3 vecDir(0.0f, 0.0f, 0.0f);
 static D3DXVECTOR3 g_LookAt(0.0f, 0.0f, 0.0f);
+static D3DXMATRIX g_mtxView;		//ビュー変換行列用変数
 
 //=====================================================
 //初期化
@@ -36,7 +35,7 @@ void dCamera_Init(void)
 	D3DXVec3Normalize(&g_vecUp, &g_vecUp);					//念の為正規化
 	g_Pos = D3DXVECTOR3(0.0f, 10.0f, -10.0f);
 	g_moveSpd = MOVE_SPEED;
-	g_rotSpd = Float3{ 0.0f, 0.0f, 0.0f };
+	g_rotSpd = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	g_Fov = 1.0f;
 }
 
@@ -166,10 +165,9 @@ void dCamera_Set(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	//ビュー変換
-	D3DXMATRIX mtxView;		//ビュー変換行列用変数
-	D3DXMatrixLookAtLH(&mtxView, &eye, &at, &up);	//行列計算
+	D3DXMatrixLookAtLH(&g_mtxView, &eye, &at, &up);	//行列計算
 
-	pDevice->SetTransform(D3DTS_VIEW, &mtxView);
+	pDevice->SetTransform(D3DTS_VIEW, &g_mtxView);
 
 	//プロジェクション変換行列
 	D3DXMATRIX mtxProj;								//プロジェクション変換行列用変数
@@ -189,4 +187,21 @@ void dCamera_Debug_Info(void)
 	DebugFont_Draw(0, 32 * 1, "at = %.02lf  %.02lf  %.02lf", g_Pos.x + g_vecFront.x, g_Pos.y + g_vecFront.y, g_Pos.z + g_vecFront.z);
 	//ズーム
 	DebugFont_Draw(0, 32 * 2, "zoom = %.02lf", g_Fov);
+}
+
+//=====================================================
+//ビルボード取得
+//=====================================================
+D3DXMATRIX dCamera_Billbord(void)
+{
+	D3DXMATRIX mtxInv;
+
+	D3DXMatrixIdentity(&mtxInv);
+	D3DXMatrixTranspose(&mtxInv, &g_mtxView);	//転置行列
+
+	mtxInv._14 = 0.0f;
+	mtxInv._24 = 0.0f;
+	mtxInv._34 = 0.0f;
+
+	return mtxInv;
 }

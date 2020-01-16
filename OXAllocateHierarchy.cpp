@@ -97,7 +97,7 @@ void updateCombMatrix(std::map<DWORD, D3DXMATRIX> &combMatrixMap, OX::OXD3DXFRAM
 //=====================================================
 //èâä˙âª
 //=====================================================
-unsigned int ModelAnime_Init(const char *filename, const char *texname)
+int ModelAnime_Init(const char *filename, const char *texname)
 {
 	////Ç∑Ç≈Ç…Ç†Ç¡ÇΩèÍçá
 	//for (int i = 0; i < ANIME_MAX; i++)

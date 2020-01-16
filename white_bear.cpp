@@ -8,7 +8,7 @@
 //====================================================
 //É}ÉNÉçíËã`
 //====================================================
-#define WHITE_BEAR_MAX (4)
+#define WHITE_BEAR_MAX (16)
 
 //====================================================
 //óÒãìå^
@@ -76,7 +76,6 @@ void WhiteBear_Update(void)
 		{
 			continue;
 		}
-		D3DXMatrixTranslation(&g_white_bear[i].mtxWorld, g_white_bear[i].pos.x, g_white_bear[i].pos.y, g_white_bear[i].pos.z);
 	}
 }
 

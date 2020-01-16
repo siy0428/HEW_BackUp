@@ -1,13 +1,10 @@
-#include "stone.h"
-#include "texture.h"
-#include "sprite.h"
-#include "band.h"
-#include <d3dx9.h>
 #include "common.h"
+#include "stone.h"
+#include "band.h"
 #include "ui_player_turn.h"
 #include "debug_font.h"
 #include "score.h"
-#include "mydirectx.h"
+#include "quest.h"
 
 //=====================================================
 //マクロ定義
@@ -60,7 +57,7 @@ void Ui_PlayerTurn_Init(void)
 	g_ui.pos[PLAYER_TURN] = D3DXVECTOR3(SCREEN_WIDTH + 120.0f, SCREEN_HEIGHT / 3, 0.0f);
 	g_ui.pos[QUEST] = D3DXVECTOR3(SCREEN_WIDTH + 120.0f, SCREEN_HEIGHT / 4, 0.0f);
 	//UI_DIR_CHANGE
-	g_ui.pos[STONE_CHANGE] = D3DXVECTOR3(-50.0f, SCREEN_HEIGHT - 150.0f, 0.0f);
+	g_ui.pos[STONE_CHANGE] = D3DXVECTOR3(-30.0f, SCREEN_HEIGHT - 150.0f, 0.0f);
 	g_ui.pos[MINI_MAP] = D3DXVECTOR3(SCREEN_WIDTH, SCREEN_HEIGHT - 200.0f, 0.0f);
 	//UI_RANGE 
 	g_ui.pos[RANGE] = D3DXVECTOR3(SCREEN_WIDTH - 300.0f, SCREEN_HEIGHT + 50.0f, 0.0f);
@@ -80,13 +77,13 @@ void Ui_PlayerTurn_Init(void)
 	g_tex[2] = Texture_SetLoadFile("Texture\\2p.png", SCREEN_WIDTH, 256);			//2pの番
 	g_tex[3] = Texture_SetLoadFile("Texture\\3p.png", SCREEN_WIDTH, 256);			//3pの番
 	g_tex[4] = Texture_SetLoadFile("Texture\\4p.png", SCREEN_WIDTH, 256);			//4pの番
-	g_tex[5] = Texture_SetLoadFile("Texture\\quest.png", SCREEN_WIDTH, 256);		//クエスト表示
+	//g_tex[5] = Texture_SetLoadFile("Texture\\quest.png", SCREEN_WIDTH, 256);		//クエスト表示
 	g_tex[6] = Texture_SetLoadFile("Texture\\メーター用距離.png", 256, 128);		//メーター用距離
 	g_tex[7] = Texture_SetLoadFile("Texture\\中央用距離.png", 960, 256);			//最終メーター用距離
 	g_tex[g_stone_change[0]] = Texture_SetLoadFile("Texture\\type_change_stone.png", 960 / 4, 320 / 4);		//ストーン切り替え(ノーマル)
 	g_tex[g_stone_change[1]] = Texture_SetLoadFile("Texture\\type_change_uiteru.png", 960 / 4, 320 / 4);	//ストーン切り替え(フロート)
 	g_tex[g_stone_change[2]] = Texture_SetLoadFile("Texture\\type_change_omoi.png", 960 / 4, 320 / 4);		//ストーン切り替え(ヘビー)
-
+	g_tex[11] = Texture_SetLoadFile("Texture\\type_change_waku.png", 384, 128);
 
 	g_tex[15] = Texture_SetLoadFile("Texture\\white.jpeg", SCREEN_WIDTH, SCREEN_HEIGHT);
 }
@@ -262,7 +259,7 @@ void Ui_PlayerTurn_Draw(void)
 	//上の帯表示
 	Sprite_Draw(g_tex[0], g_ui.pos[TOPBAND].x, g_ui.pos[TOPBAND].y);
 	//スコア表示
-	Score_Draw(Stone_GetScore(stone_id), 50.0f, g_ui.pos[TOPBAND].y, 2);
+	Score_Draw(Stone_GetScore(stone_id), 180.0f, g_ui.pos[TOPBAND].y + 110.0f, 2);
 
 	//タイプ別アニメーション
 	switch (g_ui.type_now)
@@ -270,23 +267,26 @@ void Ui_PlayerTurn_Draw(void)
 	case UI_FIRST_TURN:
 		Band_Draw(g_ui.pos[BAND]);
 		Sprite_Draw(g_tex[stone_id + 1], g_ui.pos[PLAYER_TURN].x, g_ui.pos[PLAYER_TURN].y);
-		Sprite_Draw(g_tex[5], g_ui.pos[QUEST].x, g_ui.pos[QUEST].y);
+		Quest_Draw(g_ui.pos[QUEST]);
+		//Sprite_Draw(g_tex[5], g_ui.pos[QUEST].x, g_ui.pos[QUEST].y);
 		break;
 	case UI_DIR_CHANGE:
 		//ストーン切り替え
-		Sprite_Draw(g_tex[g_stone_change[0]], g_ui.pos[STONE_CHANGE].x, g_ui.pos[STONE_CHANGE].y - 50.0f, width * stone_id, 0, width, height, 0.0f, 0.0f, 0.0f, 1.0f);
-		Sprite_Draw(g_tex[g_stone_change[1]], g_ui.pos[STONE_CHANGE].x - 100.0f, g_ui.pos[STONE_CHANGE].y, width * stone_id, 0, width, height);
-		Sprite_Draw(g_tex[g_stone_change[2]], g_ui.pos[STONE_CHANGE].x + 160.0f, g_ui.pos[STONE_CHANGE].y, width * stone_id, 0, width, height);
+		Sprite_Draw(g_tex[11], g_ui.pos[STONE_CHANGE].x - 140.0f, g_ui.pos[STONE_CHANGE].y - 20.0f);
+		Sprite_Draw(g_tex[g_stone_change[0]], g_ui.pos[STONE_CHANGE].x, g_ui.pos[STONE_CHANGE].y - 20.0f, width * stone_id, 0, width, height, 0.0f, 0.0f, 0.0f, 0.5f);
+		Sprite_Draw(g_tex[g_stone_change[1]], g_ui.pos[STONE_CHANGE].x - 120.0f, g_ui.pos[STONE_CHANGE].y, width * stone_id, 0, width, height);
+		Sprite_Draw(g_tex[g_stone_change[2]], g_ui.pos[STONE_CHANGE].x + 150.0f, g_ui.pos[STONE_CHANGE].y, width * stone_id, 0, width, height);
 		//ミニマップ
 		Sprite_Draw(g_tex[15], g_ui.pos[MINI_MAP].x, g_ui.pos[MINI_MAP].y, 0, 0, 128, 128);
 		break;
 	case UI_RANGE:
 		Sprite_Draw(g_tex[6], g_ui.pos[RANGE].x, g_ui.pos[RANGE].y);
-		Score_Draw(Stone_GetRange(stone_id), g_ui.pos[RANGE].x, g_ui.pos[RANGE].y, 2);
+		Score_Draw(Stone_GetRange(stone_id), g_ui.pos[RANGE].x + 75.0f, g_ui.pos[RANGE].y + 50.0f, 2);
 		break;
 	case UI_STOP:
 		Band_Draw(g_ui.pos[STOP]);
 		Sprite_Draw(g_tex[7], g_ui.pos[STOP].x + 250.0f, g_ui.pos[STOP].y);
+		Score_Draw(Stone_GetRange(stone_id), 1.0f, g_ui.pos[STOP].x + 600.0f, g_ui.pos[STOP].y + 100.0f, 2);
 		break;
 	default:
 		break;

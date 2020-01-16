@@ -7,7 +7,7 @@
 //=====================================================
 typedef enum
 {
-	NORMAl_CAMERA,
+	NORMAL_CAMERA,
 	DEBUG_CAMERA,
 	LIVE_CAMERA
 }CAMERA_TYPE;
@@ -26,7 +26,7 @@ void Camera_Change(void)
 	//通常カメラ
 	if (Keyboard_IsTrigger(DIK_1))
 	{
-		g_camera_type = NORMAl_CAMERA;
+		g_camera_type = NORMAL_CAMERA;
 	}
 	//デバッグカメラ
 	else if (Keyboard_IsTrigger(DIK_2))
@@ -38,7 +38,7 @@ void Camera_Change(void)
 	switch (g_camera_type)
 	{
 	//通常カメラ
-	case NORMAl_CAMERA:
+	case NORMAL_CAMERA:
 		Camera_Set();
 		break;
 	//デバッグ用カメラ

@@ -3,7 +3,7 @@
 
 #include <d3dx9.h>
 
-unsigned int ModelAnime_Init(const char *filename, const char *texname);
+int ModelAnime_Init(const char *filename, const char *texname);
 void ModelAnime_Uninit(void);
 void ModelAnime_Draw(unsigned int index, float anime_speed, D3DXMATRIX mtxWorld, int anime_type);
 
@@ -52,6 +52,9 @@ namespace OX {
 		}
 
 		STDMETHOD(DestroyFrame)(THIS_ LPD3DXFRAME pFrameToFree) {
+			if (pFrameToFree == NULL) {
+				return D3D_OK;
+			}
 			if (pFrameToFree->pFrameFirstChild)
 				DestroyFrame(pFrameToFree->pFrameFirstChild);
 			if (pFrameToFree->pFrameSibling)

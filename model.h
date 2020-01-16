@@ -8,4 +8,9 @@ void Model_Uninit(void);
 void Model_Draw(int modelId, D3DMATRIX mtxWorld);
 void Model_Draw(int modelId, D3DMATRIX mtxWorld, D3DXCOLOR color);
 
+void SetStage(int modelId);
+D3DXVECTOR3 collisionNormal(const D3DXVECTOR3* position, BOOL *hit, float* distance, bool* x, bool* z);
+bool sign(float a, float b);
+D3DXMATRIX VectorMatrix(D3DXVECTOR3 vector);
+
 #endif

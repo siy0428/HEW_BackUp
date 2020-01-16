@@ -1,15 +1,16 @@
-#include <d3dx9.h>
-#include "mydirectx.h"
 #include "common.h"
 #include "debug_font.h"
+
+//入力関係
 #include "input.h"
 #include "joycon.h"
 #include "JoyInput.h"
 #include "mouse.h"
+
+
 #include "camera.h"
 #include "stone.h"
 #include "goal.h"
-#include "joyInput.h"
 #include "power_gauge.h"
 #include "game.h"
 #include "result.h"
@@ -23,6 +24,15 @@
 //マクロ定義
 //====================================================
 #define DEAD_ZONE (0.001f)	//小数点誤差用
+
+
+//物理
+#define TEIMEN (0.0f)
+#define MASATU (0.5f)
+#define JUURYOKU ( 9.8f)
+#define GENSOKU (1.02f)
+
+#define SPEED (0.01f)
 
 //====================================================
 //列挙型
@@ -46,12 +56,14 @@ typedef struct
 	D3DXMATRIX mtx_move;		//移動量
 	D3DXVECTOR3 pos = { 0.0f, 0.5f, 0.0f };				//位置座標
 	D3DXVECTOR3 start_pos = { 0.0f, 0.5f, 0.0f };		//1F前の位置座標
+	D3DXVECTOR3 vecSpeed = { 0.0f,0.0f,0.0f };
 	unsigned int model[STONE_TYPE_MAX];
 	STONE_TYPE type;
 	int type_index;
 	float move;
 	float rot_move;
 	bool is_turn;
+	bool isUse;
 	float goal_range;
 	float stone_range;
 	int score;
@@ -124,7 +136,8 @@ void Stone_Init(void)
 		g_stone[i].stone_range = 0.0f;
 		g_stone[i].type = STONE_NORMAL;
 		g_stone[i].type_index = g_stone[i].type;
-		g_stone[i].score = 0;
+		g_stone[i].score = -1;
+		g_stone[i].isUse = false;
 		if (g_filename[i] != '\0')
 		{
 			g_stone[i].model[STONE_NORMAL] = Model_Load(g_filename[i * 3], g_pathname[i * 3]);			//通常タイプ
@@ -133,6 +146,7 @@ void Stone_Init(void)
 		}
 	}
 	g_stone[0].is_turn = true;		//最初のストーンのターン設定
+	g_stone[0].isUse = true;
 	g_player_turn = 0;// Stone_Turn();
 	g_throw_start = false;
 	gyro_rotation = 0.0f;
@@ -181,35 +195,41 @@ void Stone_Update(void)
 			return;
 		}
 
-		//ストーン切り替え
-		switch (g_stone[i].type_index)
-		{
-		case 0:
-			g_stone[i].type = STONE_NORMAL;
-			break;
-		case 1:
-			g_stone[i].type = STONE_HEAVY;
-			break;
-		case 2:
-			g_stone[i].type = STONE_FLOAT;
-			break;
-		default:
-			break;
-		}
+		////ストーン切り替え
+		//switch (g_stone[i].type_index)
+		//{
+		//case 0:
+		//	g_stone[i].type = STONE_NORMAL;
+		//	break;
+		//case 1:
+		//	g_stone[i].type = STONE_HEAVY;
+		//	break;
+		//case 2:
+		//	g_stone[i].type = STONE_FLOAT;
+		//	break;
+		//default:
+		//	break;
+		//}
 
 		//ストーン切り替え(左)
 		if (GetButton_isTrigger(JC_Y) && !Stone_Move(i) && !Penguin_OnStone(i))
 		{
-			g_stone[i].type_index = (g_stone[i].type_index + 1) % 3;
+			//g_stone[i].type_index = (g_stone[i].type_index + 1) % 3;
+			g_stone[i].type = (STONE_TYPE)(((int)g_stone[i].type + 1) % 3);
 			Ui_PlayerTurn_StoneChange(false);
 		}
 		//ストーン切り替え(右)
 		if (GetButton_isTrigger(JC_A) && !Stone_Move(i) && !Penguin_OnStone(i))
 		{
-			g_stone[i].type_index--;
-			if (g_stone[i].type_index < 0)
+			//g_stone[i].type_index--;
+			//if (g_stone[i].type_index < 0)
+			//{
+			//	g_stone[i].type_index = STONE_TYPE_MAX - 1;
+			//}
+			g_stone[i].type = (STONE_TYPE)((int)g_stone[i].type - 1);
+			if ((int)g_stone[i].type < 0)
 			{
-				g_stone[i].type_index = STONE_TYPE_MAX - 1;
+				g_stone[i].type = (STONE_TYPE)(int)(STONE_TYPE_MAX - 1);
 			}
 			Ui_PlayerTurn_StoneChange(true);
 		}
@@ -227,17 +247,18 @@ void Stone_Update(void)
 			rot_count = 0.075f * GetGyro().y / 1000;
 			Pow_Gauge_Update();
 			Ui_PlayerTurn_Create(UI_RANGE);
+			D3DXMatrixRotationY(&g_stone[i].mtx_rotation, gyro_rotation);	//ジャイロ回転
 		}
 		//ストーンの移動
 		else
 		{
 			g_stone[i].rot_move = Joycon_Operator() * D3DX_PI / 180;	//回転値
 			g_stone[i].move *= 0.98f;		//摩擦係数
-			D3DXMatrixTranslation(&g_stone[i].mtx_move, 0, 0, g_stone[i].move);
 			g_stone[i].goal_range = Goal_Range(g_stone[i].pos);	//ゴールまでの距離計算
 			//投げていないときの処理
 			if (!g_throw_start)
 			{
+				g_stone[i].start_pos = g_stone[i].pos;
 				Ui_PlayerTurn_Create(UI_DIR_CHANGE);
 				Pow_Gauge_Update();
 			}
@@ -256,6 +277,7 @@ void Stone_Update(void)
 			//移動量がDEAD_ZONE以下で次のターン
 			if (g_stone[i].move <= DEAD_ZONE && g_throw_start)
 			{
+				g_stone[i].move = 0.0f;
 				//ゴール判定
 				if (Goal_Flag(g_stone[i].goal_range, g_stone[i].move))
 				{
@@ -272,22 +294,82 @@ void Stone_Update(void)
 			}
 			gyro_rotation += rot_count;
 			rot_count *= 0.85f;
-			D3DXMatrixRotationY(&g_stone[i].mtx_rotation, g_stone[i].rot_move + gyro_rotation);	//y軸回転
+			D3DXMatrixRotationY(&g_stone[i].mtx_rotation, D3DXToRadian(Joycon_Operator()));	//スティック回転
+
+			//ストーンの進んだ距離
+			g_stone[i].stone_range = Stone_Range(g_stone[i].pos, g_stone[i].start_pos);
+
+			//ワールド座標変換
+			D3DXVECTOR3 vecWork(0.0f, 0.0f, g_stone[i].move);
+			D3DXVec3TransformNormal(&vecWork, &vecWork, &g_stone[i].mtx_rotation);
+
+			//地形変化
+			BOOL hit;
+			bool x, z;
+
+			g_stone[i].pos.y = TEIMEN;
+			D3DXVECTOR3 Nvec = collisionNormal(&g_stone[i].pos, &hit, &g_stone[i].pos.y, &x, &z);
+			g_stone[i].pos.y += TEIMEN;
+			if (FALSE == hit) {
+				//メッシュのｙ座標がマイナスの値になっている
+				g_stone[i].pos.y = TEIMEN;
+			}
+			if (x) { Nvec.x = 0.0f; }
+			if (z) { Nvec.z = 0.0f; }
+			//katamuki
+			float m_masatu;
+
+			D3DXVECTOR3 juuryoku = Nvec;
+			D3DXVECTOR3 force, yoko;
+			D3DXVECTOR3 under = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+			D3DXVec3Normalize(&juuryoku, &juuryoku);
+			float sin_saka = sqrt((juuryoku.x)*(juuryoku.x) + (juuryoku.z)*(juuryoku.z));
+			float tan_saka;
+			if (0.0f == juuryoku.y) {
+				tan_saka = 0.0f;
+			}
+			else {
+				tan_saka = sin_saka / juuryoku.y;
+			}
+
+
+
+			if (MASATU <= tan_saka) {
+				//滑る
+				m_masatu = (juuryoku.y - sin_saka * MASATU)*JUURYOKU;
+			}
+			else {
+				//止まる
+				m_masatu = 0;
+			}
+
+			//syuusei
+			D3DXVec3Cross(&yoko, &juuryoku, &under);
+			D3DXVec3Cross(&force, &yoko, &juuryoku);
+			if (force.y > 0.0f) {
+				force = -force;
+			}
+			D3DXVec3Normalize(&force, &force);
+
+			force *= m_masatu;
+			//force.y = 0.0f;
+
+			//移動
+			g_stone[i].vecSpeed += SPEED * vecWork + force;
+
+			g_stone[i].vecSpeed += force * 0.01f;
+			g_stone[i].vecSpeed /= GENSOKU;
+			g_stone[i].pos += g_stone[i].vecSpeed;
+
+			D3DXMatrixTranslation(&g_stone[i].mtx_trans, g_stone[i].vecSpeed.x, g_stone[i].vecSpeed.y, g_stone[i].vecSpeed.z);
+
+			g_stone[i].mtx_world = g_stone[i].mtx_rotation * g_stone[i].mtx_trans * g_stone[i].mtx_world;
+
+			//行列合成した状態での座標取得
+			g_stone[i].pos.x = g_stone[i].mtx_world._41;
+			g_stone[i].pos.y = g_stone[i].mtx_world._42;
+			g_stone[i].pos.z = g_stone[i].mtx_world._43;
 		}
-
-		//ストーンの進んだ距離
-		g_stone[i].stone_range = Stone_Range(g_stone[i].pos, g_stone[i].start_pos);
-
-		//ワールド座標変換
-		D3DXMatrixIdentity(&g_stone[i].mtx_world);	//単位行列を作る
-		D3DXMatrixTranslation(&g_stone[i].mtx_world, g_stone[i].pos.x, g_stone[i].pos.y, g_stone[i].pos.z);		//平行移動
-
-		g_stone[i].mtx_world = g_stone[i].mtx_move * g_stone[i].mtx_rotation * g_stone[i].mtx_world;
-
-		//行列合成した状態での座標取得
-		g_stone[i].pos.x = g_stone[i].mtx_world._41;
-		g_stone[i].pos.y = g_stone[i].mtx_world._42;
-		g_stone[i].pos.z = g_stone[i].mtx_world._43;
 	}
 }
 
@@ -296,13 +378,20 @@ void Stone_Update(void)
 //=====================================================
 void Stone_Draw(void)
 {
+	D3DXMATRIX mtxWork[2];
+	D3DXMatrixRotationY(&mtxWork[0], D3DX_PI);
 	DebugFont_Draw(0, 32 * 20, "クリック = %d", click);
 	for (int i = 0; i < PLAYER_MAX_NUM; i++)
 	{
+		if (!g_stone[i].isUse)
+		{
+			continue;
+		}
 		DebugFont_Draw(0, 32 * (6 + i), "%dPのゴールまでの距離 = %.02lf", i + 1, g_stone[i].goal_range);
 		//DebugFont_Draw(0, 32 * (6 + i), "%dPの進んだ距離 = %.02lf", i + 1, g_stone[i].stone_range);
-
-		Model_Draw(g_stone[i].model[g_stone[i].type], g_stone[i].mtx_world);
+		mtxWork[1] = mtxWork[0] * g_stone[i].mtx_world;
+		
+		Model_Draw(g_stone[i].model[g_stone[i].type], mtxWork[1]);
 	}
 }
 
@@ -389,8 +478,8 @@ void Stone_SetTurn(void)
 	g_turn_count++;			//ターン数カウント
 	(g_turn_count < 4) ? g_player_turn++ : g_player_turn = Stone_Turn();	//1巡目は1～4Pの順で、それ以降はゴールから遠い順
 	g_stone[g_player_turn].is_turn = true;									//プラスされた現在のプレイヤーのターンをtrueに
+	g_stone[g_player_turn].isUse = true;
 	g_throw_start = false;													//スタート用変数をfalse
-	Joycon_Reset();			//スティック回転値リセット
 	rot_count = 0.0f;		//回転量リセット
 	gyro_rotation = 0.0f;	//回転値リセット
 }
@@ -401,4 +490,27 @@ void Stone_SetTurn(void)
 int Stone_GetScore(int index)
 {
 	return g_stone[index].score;
+}
+
+//=====================================================
+//コースエディタ読み込み
+//=====================================================
+void Stone_SetStart(D3DXMATRIX mtxWorld)
+{
+	for (int i = 0; i < PLAYER_MAX_NUM; i++)
+	{
+		g_stone[i].mtx_world = mtxWorld;
+		g_stone[i].pos.x = mtxWorld._41;
+		g_stone[i].pos.y = mtxWorld._42;
+		g_stone[i].pos.z = mtxWorld._43;
+		g_stone[i].start_pos = g_stone[i].pos;
+	}
+}
+
+//=====================================================
+//ストーン行列読み込み
+//=====================================================
+D3DXMATRIX Stone_GetMtx(int index)
+{
+	return g_stone[index].mtx_world;
 }

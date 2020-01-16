@@ -32,6 +32,7 @@ typedef struct
 //=====================================================
 static CAMERA g_camera;
 static D3DXVECTOR3 g_look(0.0f, 0.0f, 0.0f);
+static D3DXMATRIX g_mtxView;		//ビュー変換行列用変数
 
 //=====================================================
 //初期化
@@ -49,25 +50,24 @@ void Camera_Set(void)
 {
 	int stone_turn = Stone_PlayerTurn();	//現在操作しているプレイヤーの要素数取得
 
-	//デバイスのポインタ取得
+											//デバイスのポインタ取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxRotation[XYZ_MAX];
 	D3DXVECTOR3 At = Stone_GetPos(stone_turn);
 
-	g_camera.pos = D3DXVECTOR3(0.0f, 5.0f, -10.0f);
+	g_camera.pos = D3DXVECTOR3(0.0f, 3.0f, -5.0f);
 	//注視点回転
-	D3DXMatrixRotationY(&mtxRotation[Y], Stone_Rot(stone_turn));
-	D3DXVec3TransformNormal(&g_camera.pos, &g_camera.pos, &mtxRotation[Y]);
+	//D3DXMatrixRotationY(&mtxRotation[Y], Stone_Rot(stone_turn));
+	D3DXVec3TransformNormal(&g_camera.pos, &g_camera.pos, &Stone_GetMtx(stone_turn));//ストーンの行列
 	g_camera.pos += At;
 
 	//ビュー変換
-	D3DXMATRIX mtxView;		//ビュー変換行列用変数
 	D3DXVECTOR3 eye(g_camera.pos.x, g_camera.pos.y, g_camera.pos.z);	//カメラの座標
-	D3DXVECTOR3 at(At.x, At.y, At.z);				//見る場所(注視点)
-	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);				//カメラの上方向ベクトル
-	D3DXMatrixLookAtLH(&mtxView, &eye, &at, &up);	//行列計算
+	D3DXVECTOR3 at(At.x, At.y + 1.0f, At.z);							//見る場所(注視点)
+	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);									//カメラの上方向ベクトル
+	D3DXMatrixLookAtLH(&g_mtxView, &eye, &at, &up);						//行列計算
 
-	pDevice->SetTransform(D3DTS_VIEW, &mtxView);
+	pDevice->SetTransform(D3DTS_VIEW, &g_mtxView);
 
 	//プロジェクション変換行列
 	D3DXMATRIX mtxProj;								//プロジェクション変換行列用変数
@@ -87,4 +87,21 @@ void Camera_Debug_Info(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 at)
 	DebugFont_Draw(0, 32 * 4, "at = %.02lf  %.02lf  %.02lf", at.x, at.y, at.z);
 	//回転
 	DebugFont_Draw(0, 32 * 5, "rot = %.02lf  %.02lf  %.02lf", rot.x, rot.y, rot.z);
+}
+
+//=====================================================
+//ビルボード取得
+//=====================================================
+D3DXMATRIX Camera_Billbord(void)
+{
+	D3DXMATRIX mtxInv;
+
+	D3DXMatrixIdentity(&mtxInv);
+	D3DXMatrixTranspose(&mtxInv, &g_mtxView);	//転置行列
+
+	mtxInv._14 = 0.0f;
+	mtxInv._24 = 0.0f;
+	mtxInv._34 = 0.0f;
+
+	return mtxInv;
 }

@@ -6,6 +6,7 @@
 
 void Number_Init(void);
 void Number_Draw(int number, float x, float y);
-void Number_Draw(int number, float x, float y, float cx, float cy, float cw, float ch);
+void Number_Draw(int number, float x, float y, float size);
+void Number_Draw(int x, int y);
 
 #endif

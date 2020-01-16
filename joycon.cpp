@@ -1,23 +1,24 @@
 #include "input.h"
 #include "dinput.h"
 #include "JoyInput.h"
+#include "debug_font.h"
 
 //=====================================================
 //マクロ定義
 //=====================================================
 #define STICK_SPEED (1.0f)
+#define STICK_DEFAULT_STICK (0.0f)
 
 //=====================================================
 //グローバル変数
 //=====================================================
-static float g_stick_y = 0;
 
 //=====================================================
 //初期化
 //=====================================================
 void Joycon_Init(void)
 {
-	g_stick_y = 0.0f;
+	
 }
 
 //=====================================================
@@ -26,27 +27,20 @@ void Joycon_Init(void)
 float Joycon_Operator(void)
 {
 	//スティック操作
-	g_stick_y += GetStick().x / 500;
+	float stick_y;
+	stick_y = GetStick().x / 500;
 
 	//デバッグ用回転
 #if (DEBUG) || (_DEBUG)
 	if (Keyboard_IsPress(DIK_LEFTARROW))
 	{
-		g_stick_y -= STICK_SPEED;
+		stick_y = -STICK_SPEED;
 	}
 	else if (Keyboard_IsPress(DIK_RIGHTARROW))
 	{
-		g_stick_y += STICK_SPEED;
+		stick_y = STICK_SPEED;
 	}
 #endif	(DEBUG) || (_DEBUG)
 
-	return g_stick_y;
-}
-
-//=====================================================
-//回転量リセット
-//=====================================================
-void Joycon_Reset(void)
-{
-	g_stick_y = 0.0f;
+	return stick_y;
 }

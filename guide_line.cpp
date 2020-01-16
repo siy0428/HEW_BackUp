@@ -35,7 +35,7 @@ static const GLineVertex g_guide_line[] = {
 	{D3DXVECTOR3(0.5f + GAUGE_WIDTH, -0.5f - GAUGE_HEIGHT, 0.0f),D3DXVECTOR3(0.0f, 0.0f, -1.0f),  D3DCOLOR_RGBA(255, 255, 255, 255), D3DXVECTOR2(1.0f, 1.0f)},
 };
 static D3DXVECTOR3 g_pos(0.0f, 10.5f, 0.0f);
-static D3DXMATRIX g_mtxWorld, g_mtxScaling, g_mtxRotate[2], g_mtxTrans[2];
+static D3DXMATRIX g_mtxWorld, g_mtxScaling, g_mtxRotate, g_mtxTrans;
 
 //====================================================
 //初期化
@@ -58,19 +58,12 @@ void GuideLine_Uninit(void)
 //====================================================
 void GuideLine_Update(void)
 {
-	int stone_turn = Stone_PlayerTurn();	//現在操作しているプレイヤーの要素数取得
-
-	//ストーンの座標取得
-	g_pos = Stone_GetPos(stone_turn);
-
 	D3DXMatrixIdentity(&g_mtxWorld);
-	D3DXMatrixTranslation(&g_mtxTrans[0], g_pos.x, g_pos.y, g_pos.z);
-	D3DXMatrixTranslation(&g_mtxTrans[1], -0.2f, 1.0f, 3.0f);
-	D3DXMatrixScaling(&g_mtxScaling, 0.015f, 0.015f, 1.0f);
-	D3DXMatrixRotationX(&g_mtxRotate[0], 90 * D3DX_PI / 180);
-	D3DXMatrixRotationY(&g_mtxRotate[1], Stone_Rot(stone_turn));
+	D3DXMatrixScaling(&g_mtxScaling, 0.015f, 0.015f, 1.0f);		//大きさ
+	D3DXMatrixRotationX(&g_mtxRotate, 90 * D3DX_PI / 180);		//x軸回転
+	D3DXMatrixTranslation(&g_mtxTrans, -0.2f, 1.0f, 3.0f);		//描画位置調整用
 
-	g_mtxWorld = g_mtxScaling * g_mtxRotate[0] * g_mtxTrans[1]* g_mtxRotate[1] * g_mtxTrans[0];
+	g_mtxWorld = g_mtxScaling * g_mtxRotate * g_mtxTrans * Stone_GetMtx(Stone_PlayerTurn());
 }
 
 //====================================================

@@ -3,9 +3,12 @@
 #include "save_load.h"
 #include "mydirectx.h"
 
+static int modeleId;
+
 void Stage_Init(void)
 {
-	
+	modeleId = GetStageId();
+	SetStage(modeleId);
 }
 
 
@@ -16,6 +19,6 @@ void Stage_Draw(void)
 	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);	//FALSE:ライトOFF TRUE:ライトON
 
 	D3DXMATRIX mtxWorld;
-	D3DXMatrixTranslation(&mtxWorld, 0.0f, -10.0f, 0.0f);
-	Model_Draw(GetStageId(), mtxWorld);
+	D3DXMatrixIdentity(&mtxWorld);
+	Model_Draw(modeleId, mtxWorld);
 }

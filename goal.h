@@ -11,5 +11,6 @@ float Goal_Range(D3DXVECTOR3 pos);	//ストーンごとのゴールまでの距離
 bool Goal_Flag(float goal_range, float move);			//ゴールしたかどうか
 void Goal_GetWinPlayer(int num);
 void Goal_Set(D3DXMATRIX mtxWorld);
+D3DXVECTOR3 Goal_GetPos(void);
 
 #endif

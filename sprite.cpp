@@ -1,5 +1,3 @@
-#include <d3d9.h>
-#include <d3dx9.h>
 #include "texture.h"
 #include "mydirectx.h"
 
@@ -33,13 +31,13 @@ void Sprite_Draw(int texId, float dx, float dy)
 	Vertex3d v[32] =
 	{
 		{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(0, 0) },
-		{ D3DXVECTOR4(dx + w - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(1.0f, 0) },
-		{ D3DXVECTOR4(dx - 0.5f, dy + h - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(0.0f, 1.0f) },
-		{ D3DXVECTOR4(dx + w - 0.5f, dy + h - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(1.0f,1.0f) },
-		//{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(0, 0) },
-		//{ D3DXVECTOR4(dx + w - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(1.0f, 0) },
-		//{ D3DXVECTOR4(dx - 0.5f, dy + h - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(0.0f, 1.0f) },
-		//{ D3DXVECTOR4(dx + w - 0.5f, dy + h - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(1.0f,1.0f) },
+	{ D3DXVECTOR4(dx + w - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(1.0f, 0) },
+	{ D3DXVECTOR4(dx - 0.5f, dy + h - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(0.0f, 1.0f) },
+	{ D3DXVECTOR4(dx + w - 0.5f, dy + h - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(1.0f,1.0f) },
+	//{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(0, 0) },
+	//{ D3DXVECTOR4(dx + w - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(1.0f, 0) },
+	//{ D3DXVECTOR4(dx - 0.5f, dy + h - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(0.0f, 1.0f) },
+	//{ D3DXVECTOR4(dx + w - 0.5f, dy + h - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(1.0f,1.0f) },
 	};
 
 	pDevice->SetFVF(FVF_VERTEX2D);			//デバイスに頂点データを渡す
@@ -60,7 +58,7 @@ void Sprite_Draw(int texId, float dx, float dy, int alpha)
 
 	Vertex3d v[32] =
 	{
-	{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),D3DCOLOR_RGBA(255, 255, 255, alpha), D3DXVECTOR2(0, 0) },
+		{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),D3DCOLOR_RGBA(255, 255, 255, alpha), D3DXVECTOR2(0, 0) },
 	{ D3DXVECTOR4(dx + w - 0.5f, dy - 0.5f, 0.0f, 1.0f),D3DCOLOR_RGBA(255, 255, 255, alpha), D3DXVECTOR2(1.0f, 0) },
 	{ D3DXVECTOR4(dx - 0.5f, dy + h - 0.5f, 0.0f, 1.0f),D3DCOLOR_RGBA(255, 255, 255, alpha), D3DXVECTOR2(0.0f, 1.0f) },
 	{ D3DXVECTOR4(dx + w - 0.5f, dy + h - 0.5f, 0.0f, 1.0f),D3DCOLOR_RGBA(255, 255, 255, alpha), D3DXVECTOR2(1.0f,1.0f) },
@@ -89,9 +87,9 @@ void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch)
 	Vertex3d v[32] =
 	{
 		{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v0) },
-		{ D3DXVECTOR4(dx + cw - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1, v0) },
-		{ D3DXVECTOR4(dx - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v1) },
-		{ D3DXVECTOR4(dx + cw - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1,v1) },
+	{ D3DXVECTOR4(dx + cw - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1, v0) },
+	{ D3DXVECTOR4(dx - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v1) },
+	{ D3DXVECTOR4(dx + cw - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1,v1) },
 	};
 	pDevice->SetFVF(FVF_VERTEX2D);			//デバイスに頂点データを渡す
 	pDevice->SetTexture(0, Texture_GetTexture(texId));	//テクスチャをデバイスに渡す
@@ -117,9 +115,9 @@ void Sprite_Draw(int texId, float dx, float dy, float dw, float dh, int cx, int 
 	Vertex3d v[32] =
 	{
 		{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v0) },
-		{ D3DXVECTOR4(dx + dw - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1, v0) },
-		{ D3DXVECTOR4(dx - 0.5f, dy + dh - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v1) },
-		{ D3DXVECTOR4(dx + dw - 0.5f, dy + dh - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1,v1) },
+	{ D3DXVECTOR4(dx + dw - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1, v0) },
+	{ D3DXVECTOR4(dx - 0.5f, dy + dh - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v1) },
+	{ D3DXVECTOR4(dx + dw - 0.5f, dy + dh - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1,v1) },
 	};
 	pDevice->SetFVF(FVF_VERTEX2D);			//デバイスに頂点データを渡す
 	pDevice->SetTexture(0, Texture_GetTexture(texId));	//テクスチャをデバイスに渡す
@@ -142,9 +140,9 @@ void Sprite_Draw(int w, int h, float dx, float dy, int cx, int cy, int cw, int c
 	Vertex3d v[32] =
 	{
 		{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u0, v0) },
-		{ D3DXVECTOR4(dx + cw - 0.5f, dy - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u1, v0) },
-		{ D3DXVECTOR4(dx - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u0, v1) },
-		{ D3DXVECTOR4(dx + cw - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u1,v1) },
+	{ D3DXVECTOR4(dx + cw - 0.5f, dy - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u1, v0) },
+	{ D3DXVECTOR4(dx - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u0, v1) },
+	{ D3DXVECTOR4(dx + cw - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u1,v1) },
 	};
 
 	pDevice->SetFVF(FVF_VERTEX2D);	//デバイスに頂点データを渡す
@@ -171,9 +169,9 @@ void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch, 
 	Vertex3d v[32] =
 	{
 		{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u0, v0) },
-		{ D3DXVECTOR4(dx + cw - 0.5f, dy - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u1, v0) },
-		{ D3DXVECTOR4(dx - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u0, v1) },
-		{ D3DXVECTOR4(dx + cw - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u1,v1) },
+	{ D3DXVECTOR4(dx + cw - 0.5f, dy - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u1, v0) },
+	{ D3DXVECTOR4(dx - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u0, v1) },
+	{ D3DXVECTOR4(dx + cw - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),color, D3DXVECTOR2(u1,v1) },
 	};
 
 	pDevice->SetFVF(FVF_VERTEX2D);			//デバイスに頂点データを渡す
@@ -259,9 +257,9 @@ void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch, 
 	Vertex3d v[32] =
 	{
 		{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v0) },
-		{ D3DXVECTOR4(dx + cw - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1, v0) },
-		{ D3DXVECTOR4(dx - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v1) },
-		{ D3DXVECTOR4(dx + cw - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1,v1) },
+	{ D3DXVECTOR4(dx + cw - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1, v0) },
+	{ D3DXVECTOR4(dx - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v1) },
+	{ D3DXVECTOR4(dx + cw - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1,v1) },
 	};
 
 	for (int i = 0; i < 4; i++)
@@ -292,7 +290,7 @@ void Sprite_Draw(int texId, float dx, float dy, int cx, int cy, int cw, int ch, 
 
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxW, mtxR, mtxT, mtxIT, mtxS;
-	D3DXMatrixScaling(&mtxS, 1.0f + zoom, 1.0f + zoom, 1.0f + zoom);	//行列のポインタ,x,y,z
+	D3DXMatrixScaling(&mtxS, zoom, zoom, zoom);	//行列のポインタ,x,y,z
 	D3DXMatrixTranslation(&mtxT, -center_x - dx, -center_y - dy, 0);	//平行移動
 	D3DXMatrixTranslation(&mtxIT, center_x + dx, center_y + dy, 0);	//元の場所に移動
 	D3DXMatrixRotationZ(&mtxR, angle);						//回転
@@ -346,7 +344,7 @@ void Sprite_Reverse_Draw(int texId, float dx, float dy, int cx, int cy, int cw, 
 
 	Vertex3d v[32] =
 	{
-	{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1, v0) },
+		{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1, v0) },
 	{ D3DXVECTOR4(dx + cw - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v0) },
 	{ D3DXVECTOR4(dx - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1, v1) },
 	{ D3DXVECTOR4(dx + cw - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0,v1) },
@@ -381,7 +379,7 @@ void Sprite_Upside_Draw(int texId, float dx, float dy, int cx, int cy, int cw, i
 
 	Vertex3d v[32] =
 	{
-	{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v1) },
+		{ D3DXVECTOR4(dx - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v1) },
 	{ D3DXVECTOR4(dx + cw - 0.5f, dy - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1, v1) },
 	{ D3DXVECTOR4(dx - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u0, v0) },
 	{ D3DXVECTOR4(dx + cw - 0.5f, dy + ch - 0.5f, 0.0f, 1.0f),g_color, D3DXVECTOR2(u1,v0) },

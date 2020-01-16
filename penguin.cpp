@@ -78,7 +78,6 @@ void Penguin_Update(void)
 		{
 			continue;
 		}
-		D3DXMatrixTranslation(&g_penguin[i].mtxWorld, g_penguin[i].pos.x, g_penguin[i].pos.y, g_penguin[i].pos.z);
 	}
 }
 

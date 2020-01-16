@@ -13,6 +13,8 @@
 #include "penguin.h"
 #include "white_bear.h"
 #include "goal.h"
+#include "stone.h"
+#include "turara.h"
 
 //----------------------
 //定数定義
@@ -68,7 +70,7 @@ void LoadStageDate(void)
 		fread(&intWork1, sizeof(int), 1, fp1);
 		for (cnt2 = 0; cnt2 < intWork1; cnt2++) {
 			fread(mtxWork1, sizeof(D3DXMATRIX), 1, fp1);
-			//SetTurara(&mtxWork1);
+			Turara_Set(mtxWork1);
 		}
 
 		//かべロード
@@ -84,7 +86,7 @@ void LoadStageDate(void)
 		fread(&intWork1, sizeof(int), 1, fp1);
 		for (cnt2 = 0; cnt2 < intWork1; cnt2++) {
 			fread(mtxWork1, sizeof(D3DXMATRIX), 1, fp1);
-			//SetStart(&mtxWork1);
+			Stone_SetStart(mtxWork1);
 		}
 
 		//ゴールロード

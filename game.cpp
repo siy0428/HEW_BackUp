@@ -34,8 +34,11 @@
 #include "tutorial.h"
 #include "course_camera.h"
 #include "white_bear.h"
+#include "turara.h"
 #include "save_load.h"
 #include "stage.h"
+#include "joycon.h"
+#include "quest.h"
 
 //=====================================================
 //グローバル変数
@@ -51,7 +54,7 @@ static HWND g_hwnd = NULL;
 void Game_Init(HWND hwnd)
 {
 	g_hwnd = hwnd;
-	Goal_Init();	//Stoneより先に呼ばないと初回の距離が正確ではない
+	Goal_Init();
 	Debug_Init();
 	Fade_init();
 	EfectInit();
@@ -72,12 +75,13 @@ void Game_Init(HWND hwnd)
 	Title_Init();
 	Band_Init();
 	Tutorial_Init();
-	Course_Camera_Init();
 	Penguin_Init();
 	WhiteBear_Init();
+	Turara_Init();
 	LoadStageDate();
 	Stage_Init();
-
+	Course_Camera_Init();
+	Quest_Init();
 	if (g_TexLoad)
 	{
 		if (Texture_Load() > 0)
@@ -122,7 +126,7 @@ void Game_Update(void)
 	Keyboard_Update();
 	//ジョイコン更新
 	UpdateInput();
-
+	//フェード更新
 	Fade_Update();
 
 	switch (g_Scene)
@@ -136,7 +140,9 @@ void Game_Update(void)
 	case SCENE_CAMERA:
 		Course_Camera_Update();
 		Penguin_Update();
+		WhiteBear_Update();
 		Goal_Update();
+		Stone_Update();
 		break;
 	case SCENE_MAIN:
 		Mouse_Update();
@@ -147,6 +153,8 @@ void Game_Update(void)
 		Ui_PlayerTurn_Update();
 		Penguin_Update();
 		WhiteBear_Update();
+		Turara_Update();
+		Quest_Update();
 		break;
 	case SCENE_RESULT:
 		Result_Update();
@@ -171,8 +179,11 @@ void Game_Draw(void)
 		break;
 	case SCENE_CAMERA:
 		Course_Camera_Draw();
-		Mesh_Draw();
+		WhiteBear_Draw();
+		Turara_Draw();
 		Penguin_Draw();
+		Stone_Draw();
+		Stage_Draw();
 		Goal_Draw();
 		break;
 	case SCENE_MAIN:
@@ -186,7 +197,8 @@ void Game_Draw(void)
 		Ui_PlayerTurn_Draw();
 		Penguin_Draw();
 		WhiteBear_Draw();
-		//Stage_Draw();
+		Turara_Draw();
+		Stage_Draw();
 		break;
 	case SCENE_RESULT:
 		Result_Draw();

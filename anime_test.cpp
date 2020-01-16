@@ -31,9 +31,6 @@ void Anime_Test_Uninit(void)
 //=====================================================
 void Anime_Test_Draw(void)
 {
-	//デバイスのポインタ取得
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
 	DebugFont_Draw(0, 32 * 4, "%d", g_anime_id[0]);
 	DebugFont_Draw(0, 32 * 5, "%d", g_anime_id[1]);
 	static D3DXVECTOR3 pos;

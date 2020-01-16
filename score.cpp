@@ -30,17 +30,50 @@ void Score_Update(void)
 //=====================================================
 void Score_Draw(int score, float x, float y, int digit, bool left)
 {
+	//スコアがマイナスだったら一度プラスに
+	if (score < 0)
+	{
+		score *= -1;
+		Number_Draw(x - 60 * digit, y);
+	}
 	score += g_Score;
 	for (int i = 0; i < digit; i++)
 	{
 		g_Num[i] = score % 10;
 		if (!left)
 		{
-			Number_Draw(g_Num[i], x - i * 20, y);
+			Number_Draw(g_Num[i], x - i * 60, y);
 		}
 		else
 		{
-			Number_Draw(g_Num[i], x + i * 20, y);
+			Number_Draw(g_Num[i], x + i * 60, y);
+		}
+		score /= 10;
+	}
+}
+
+//=====================================================
+//サイズ調整描画
+//=====================================================
+void Score_Draw(int score, float size, float x, float y, int digit, bool left = false)
+{
+	//スコアがマイナスだったら一度プラスに
+	if (score < 0)
+	{
+		score *= -1;
+		Number_Draw(x - 150 * digit, y);
+	}
+	score += g_Score;
+	for (int i = 0; i < digit; i++)
+	{
+		g_Num[i] = score % 10;
+		if (!left)
+		{
+			Number_Draw(g_Num[i], x - i * 150, y, size);
+		}
+		else
+		{
+			Number_Draw(g_Num[i], x + i * 150, y, size);
 		}
 		score /= 10;
 	}

@@ -3,6 +3,7 @@
 
 #include <windows.h>
 #include <d3d9.h>
+#include <d3dx9.h>
 
 bool MyDirectX_Init(HWND hwnd);
 void MyDirectX_Uninit(void);

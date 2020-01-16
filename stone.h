@@ -18,5 +18,7 @@ int Stone_Turn(void);										//ゴールの距離に応じてストーンの順番処理
 float Stone_Rot(int index);									//回転量取得
 void Stone_SetTurn(void);									//次のターンの設定
 int Stone_GetScore(int index);								//スコアの取得
+void Stone_SetStart(D3DXMATRIX mtxWorld);
+D3DXMATRIX Stone_GetMtx(int index);
 
 #endif

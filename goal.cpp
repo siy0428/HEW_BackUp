@@ -1,5 +1,3 @@
-#include <d3dx9.h>
-#include "mydirectx.h"
 #include "common.h"
 #include "debug_font.h"
 #include "input.h"
@@ -7,8 +5,11 @@
 #include "mouse.h"
 #include "camera.h"
 #include "stone.h"
-#include "texture.h"
-#include "sprite.h"
+#include "sprite3d.h"
+#include "debug_camera.h"
+#include "game.h"
+#include "course_camera.h"
+#include "mydirectx.h"
 
 //====================================================
 //マクロ定義
@@ -20,63 +21,14 @@
 //====================================================
 //構造体宣言
 //====================================================
-typedef struct Goal_Vertex_tag
-{
-	D3DXVECTOR3 position;	//座標
-	D3DCOLOR color;			//色情報
-}GoalVertex;
-#define FVF_CUBE (D3DFVF_XYZ | D3DFVF_DIFFUSE)
 
 //=====================================================
 //グローバル変数
 //=====================================================
-static const GoalVertex g_goal_vertex[] = {						//頂点構造体
-	//正面
-	{D3DXVECTOR3(-1.0f, GOAL_HEIGHT, -1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, GOAL_HEIGHT, -1.0f),  D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, -GOAL_HEIGHT, -1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, -GOAL_HEIGHT, -1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, -GOAL_HEIGHT, -1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, GOAL_HEIGHT, -1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	//右面
-	{D3DXVECTOR3(1.0f, GOAL_HEIGHT, -1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, GOAL_HEIGHT, 1.0f),  D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, -GOAL_HEIGHT, 1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, -GOAL_HEIGHT, 1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, -GOAL_HEIGHT, -1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, GOAL_HEIGHT, -1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	//左面
-	{D3DXVECTOR3(-1.0f, GOAL_HEIGHT, 1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, GOAL_HEIGHT, -1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, -GOAL_HEIGHT, 1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, -GOAL_HEIGHT, 1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, GOAL_HEIGHT, -1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, -GOAL_HEIGHT, -1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	//奥面
-	{D3DXVECTOR3(1.0f, GOAL_HEIGHT, 1.0f),  D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, GOAL_HEIGHT, 1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, -GOAL_HEIGHT, 1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, -GOAL_HEIGHT, 1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, -GOAL_HEIGHT, 1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, GOAL_HEIGHT, 1.0f),  D3DCOLOR_RGBA(255, 255, 255, 255)},
-	//底面
-	{D3DXVECTOR3(1.0f, -GOAL_HEIGHT, 1.0f),  D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, -GOAL_HEIGHT, 1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, -GOAL_HEIGHT, -1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, -GOAL_HEIGHT, -1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, -GOAL_HEIGHT, 1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, -GOAL_HEIGHT, -1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	//上面
-	{D3DXVECTOR3(-1.0f, GOAL_HEIGHT, 1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, GOAL_HEIGHT, 1.0f),  D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, GOAL_HEIGHT, -1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(-1.0f, GOAL_HEIGHT, -1.0f),D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, GOAL_HEIGHT, 1.0f),  D3DCOLOR_RGBA(255, 255, 255, 255)},
-	{D3DXVECTOR3(1.0f, GOAL_HEIGHT, -1.0f), D3DCOLOR_RGBA(255, 255, 255, 255)}
-};
 static D3DXVECTOR3 g_pos(0.0f, 0.5f, 0.0f);
 static D3DXMATRIX g_mtxWorld;
-static unsigned int g_tex[PLAYER_MAX_NUM] = { 0 };
+//static unsigned int g_tex[PLAYER_MAX_NUM] = { 0 };
+static unsigned int g_tex;
 static int g_win_player = -1;
 static bool g_goal_flag;
 
@@ -86,11 +38,12 @@ static bool g_goal_flag;
 void Goal_Init(void)
 {
 	g_pos = D3DXVECTOR3(0.0f, 0.5f, 30.0f);
-	g_tex[0] = Texture_SetLoadFile("Texture\\1p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-	g_tex[1] = Texture_SetLoadFile("Texture\\2p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-	g_tex[2] = Texture_SetLoadFile("Texture\\3p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
-	g_tex[3] = Texture_SetLoadFile("Texture\\4p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+	//g_tex[0] = Texture_SetLoadFile("Texture\\1p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+	//g_tex[1] = Texture_SetLoadFile("Texture\\2p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+	//g_tex[2] = Texture_SetLoadFile("Texture\\3p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
+	//g_tex[3] = Texture_SetLoadFile("Texture\\4p_goal.png", SCREEN_WIDTH, SCREEN_HEIGHT);
 	g_goal_flag = false;
+	g_tex = Texture_SetLoadFile("Texture\\goal_flag.png", 64, 256);
 }
 
 //=====================================================
@@ -106,9 +59,18 @@ void Goal_Uninit(void)
 //=====================================================
 void Goal_Update(void)
 {
+	D3DXMATRIX mtxScale;
 	//単位行列
 	D3DXMatrixIdentity(&g_mtxWorld);
 	D3DXMatrixTranslation(&g_mtxWorld, g_pos.x, g_pos.y, g_pos.z);
+	//大きさ
+	D3DXMatrixScaling(&mtxScale, 1.0f, 4.0f, 4.0f);
+
+	//ビルボード
+	D3DXMATRIX mtxBill = (Game_GetScene() == SCENE_CAMERA) ? Course_Camera_Billboard() : Camera_Billbord();
+	g_mtxWorld = mtxBill * g_mtxWorld;
+	g_mtxWorld = mtxScale * g_mtxWorld;
+
 }
 
 //=====================================================
@@ -118,18 +80,15 @@ void Goal_Draw(void)
 {
 	//デバイスのポインタ取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	if (g_goal_flag)
-	{
-		Sprite_Draw(g_tex[g_win_player], 0, 0);
-	}
-
-	//描画設定
-	pDevice->SetTransform(D3DTS_WORLD, &g_mtxWorld);
-	pDevice->SetFVF(FVF_CUBE);						//デバイスに頂点データを渡す
-	pDevice->SetTexture(0, NULL);					//テクスチャをデバイスに渡す
 	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);	//FALSE:ライトOFF TRUE:ライトON
-	pDevice->DrawPrimitiveUP(D3DPT_LINELIST, 16, g_goal_vertex, sizeof(GoalVertex));
+	//UV反転
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR);
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR);
+	//描画
+	Sprite3d_Draw(g_tex, g_mtxWorld);
+	//WRAP
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 }
 
 //=====================================================
@@ -145,16 +104,7 @@ float Goal_Range(D3DXVECTOR3 pos)
 //=====================================================
 bool Goal_Flag(float goal_range, float move)
 {
-	////ゴールしていた場合true
-	//if (goal_range <= GOAL_RANGE && move <= DEAD_ZONE)
-	//{
-	//	return true;
-	//}
-	//return false;
-
-	g_goal_flag = (goal_range <= GOAL_RANGE && move <= DEAD_ZONE) ? true : false;
-
-	return g_goal_flag;
+	return (goal_range <= GOAL_RANGE && move <= DEAD_ZONE) ? true : false;
 }
 
 //=====================================================
@@ -172,6 +122,14 @@ void Goal_Set(D3DXMATRIX mtxWorld)
 {
 	g_mtxWorld = mtxWorld;
 	g_pos.x = mtxWorld._41;
-	g_pos.y = mtxWorld._42;
+	g_pos.y = mtxWorld._42 + 1.5f;
 	g_pos.z = mtxWorld._43;
+}
+
+//=====================================================
+//ゴールの座標取得
+//=====================================================
+D3DXVECTOR3 Goal_GetPos(void)
+{
+	return g_pos;
 }

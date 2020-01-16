@@ -1,7 +1,7 @@
-#include <d3dx9.h>
 #include <string.h>
 #include "mydirectx.h"
 #include "texture.h"
+#include "model.h"
 
 //=====================================================
 //マクロ定義
@@ -25,6 +25,8 @@ typedef struct
 //グローバル変数
 //=====================================================
 static MODEL g_Model[MODEL_MAX] = {};
+
+static LPD3DXMESH land_mesh;
 
 //=====================================================
 //初期化
@@ -180,4 +182,87 @@ void Model_Draw(int modelId, D3DMATRIX mtxWorld, D3DXCOLOR color)
 		//メッシュを書く
 		g_Model[modelId].pMesh->DrawSubset(i);
 	}
+}
+
+
+void SetStage(int modelId)
+{
+	land_mesh = g_Model[modelId].pMesh;
+
+	return;
+}
+
+D3DXVECTOR3 collisionNormal(const D3DXVECTOR3* position, BOOL *hit, float* distance, bool* x, bool* z)
+{
+	D3DXVECTOR3 under = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+	float distance1, distance2, distance1_xm, distance2_zm;
+	BOOL hit1, hit2;
+	float lag = 0.1f;
+	D3DXVECTOR3 position1 = *position;
+	position1.x += lag;
+	D3DXVECTOR3 position1_xm = *position;
+	position1_xm.x -= lag;
+	D3DXVECTOR3 position2 = *position;
+	position2.z += lag;
+	D3DXVECTOR3 position2_zm = *position;
+	position2_zm.z -= lag;
+
+
+	D3DXIntersect(land_mesh, position, &under, hit, NULL, NULL, NULL, distance, NULL, NULL);
+	D3DXIntersect(land_mesh, &position1, &under, &hit1, NULL, NULL, NULL, &distance1, NULL, NULL);
+	D3DXIntersect(land_mesh, &position1_xm, &under, &hit1, NULL, NULL, NULL, &distance1_xm, NULL, NULL);
+	D3DXIntersect(land_mesh, &position2, &under, &hit2, NULL, NULL, NULL, &distance2, NULL, NULL);
+	D3DXIntersect(land_mesh, &position2_zm, &under, &hit2, NULL, NULL, NULL, &distance2_zm, NULL, NULL);
+
+	*x = !(sign(*distance, distance1) ^ sign(*distance, distance1_xm));
+	*z = !(sign(*distance, distance2) ^ sign(*distance, distance2_zm));
+
+	D3DXVECTOR3 VecA, VecB, Normal;
+	VecA = { lag , distance1 - *distance,  0.0f };
+	VecB = { 0.0f , distance2 - *distance,lag };
+	D3DXVec3Cross(&Normal, &VecA, &VecB);
+	if (Normal.y < 0.0f) {
+		Normal = -Normal;
+	}
+
+
+	//return distance,hit;
+	return Normal;
+}
+
+
+bool sign(float a, float b) 
+{
+	if (a >= b)return true;
+	return false;
+}
+
+D3DXMATRIX VectorMatrix(D3DXVECTOR3 vector)
+{
+	D3DXMATRIX transform, ret;
+	D3DXVECTOR3 v_transform;
+	float angle = 90 * (D3DX_PI / 180);
+
+	D3DXMatrixIdentity(&transform);
+
+	transform._21 = vector.x;
+	transform._22 = vector.y;
+	transform._23 = vector.z;
+
+	//x
+	D3DXMatrixRotationZ(&ret, -angle);
+	//v_transform = vector * ret;
+	D3DXVec3TransformCoord(&v_transform, &vector, &ret);
+	transform._11 = v_transform.x;
+	transform._12 = v_transform.y;
+	transform._13 = v_transform.z;
+
+	//z
+	D3DXVec3Cross(&v_transform, &v_transform, &vector);
+	//D3DXVec3TransformCoord(&v_transform, &vector, &ret);
+	transform._31 = v_transform.x;
+	transform._32 = v_transform.y;
+	transform._33 = v_transform.z;
+
+	return transform;
 }
